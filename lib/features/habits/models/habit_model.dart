@@ -53,10 +53,17 @@ class HabitModel {
   Color get color => Color(colorValue);
 
   bool isCompletedOn(DateTime date) {
-    return completedDates.contains(_dateKey(date));
+    return completedDates.contains(dateKey(date));
   }
 
   bool isCompletedToday() => isCompletedOn(DateTime.now());
+
+  static String dateKey(DateTime date) {
+    final local = DateTime(date.year, date.month, date.day);
+    return '${local.year.toString().padLeft(4, '0')}-'
+        '${local.month.toString().padLeft(2, '0')}-'
+        '${local.day.toString().padLeft(2, '0')}';
+  }
 
   HabitModel copyWith({
     String? name,
@@ -86,7 +93,7 @@ class HabitModel {
   }
 
   HabitModel toggleCompletion(DateTime date) {
-    final key = _dateKey(date);
+    final key = dateKey(date);
     final updated = List<String>.from(completedDates);
     if (updated.contains(key)) {
       updated.remove(key);
@@ -94,12 +101,5 @@ class HabitModel {
       updated.add(key);
     }
     return copyWith(completedDates: updated);
-  }
-
-  static String _dateKey(DateTime date) {
-    final local = DateTime(date.year, date.month, date.day);
-    return '${local.year.toString().padLeft(4, '0')}-'
-        '${local.month.toString().padLeft(2, '0')}-'
-        '${local.day.toString().padLeft(2, '0')}';
   }
 }
