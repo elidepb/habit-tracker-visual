@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
-import 'package:habit_tracker_visual/features/create_habit/views/create_habit_screen.dart';
+import 'package:habit_tracker_visual/features/create_habit/views/habit_form_screen.dart';
 import 'package:habit_tracker_visual/features/habit_detail/views/habit_detail_screen.dart';
 import 'package:habit_tracker_visual/features/home/views/home_screen.dart';
 import 'package:habit_tracker_visual/features/onboarding/views/onboarding_screen.dart';
@@ -61,7 +61,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.createHabit,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const CreateHabitScreen(),
+        builder: (context, state) => const HabitFormScreen(),
+      ),
+      GoRoute(
+        path: '${Routes.editHabit}/:id',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return HabitFormScreen(habitId: id);
+        },
       ),
       GoRoute(
         path: '${Routes.habitDetail}/:id',

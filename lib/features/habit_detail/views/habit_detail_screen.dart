@@ -1,38 +1,149 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/router/routes.dart';
+import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
-import 'package:habit_tracker_visual/shared/widgets/feature_placeholder.dart';
+import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
+import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class HabitDetailScreen extends StatelessWidget {
+class HabitDetailScreen extends ConsumerWidget {
   const HabitDetailScreen({super.key, required this.habitId});
 
   final String habitId;
 
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const AppText.subtitle('Eliminar hábito'),
+        content: const AppText.body(
+          'Esta acción no se puede deshacer. ¿Deseas eliminar este hábito?',
+          color: AppColors.textSecondary,
+        ),
+        actions: [
+          AppButton(
+            label: 'Cancelar',
+            variant: AppButtonVariant.ghost,
+            size: AppButtonSize.sm,
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          AppButton(
+            label: 'Eliminar',
+            variant: AppButtonVariant.danger,
+            size: AppButtonSize.sm,
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    await ref.read(habitRepositoryProvider).delete(habitId);
+    if (!context.mounted) return;
+    context.pop();
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final habit = ref.watch(habitByIdProvider(habitId));
+
+    if (habit == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(LucideIcons.arrowLeft),
+            onPressed: () => context.pop(),
+          ),
+        ),
+        body: const Center(child: AppText.body('Hábito no encontrado')),
+      );
+    }
+
+    final completedCount = habit.completedDates.length;
+    final streakLabel = habit.isCompletedToday() ? 'Completado hoy' : 'Pendiente hoy';
+
     return Scaffold(
       appBar: AppBar(
-        title: AppText.subtitle('Hábito $habitId'),
+        title: AppText.subtitle(habit.name),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
       ),
-      body: FeaturePlaceholder(
-        title: 'Detalle del hábito',
-        subtitle: 'Heatmap individual, estadísticas e historial — PR-08.',
-        icon: LucideIcons.target,
+      body: Padding(
+        padding: AppSpacing.screenPadding,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            AppCard(
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: habit.color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      HabitIcons.fromName(habit.iconName),
+                      color: habit.color,
+                      size: 28,
+                    ),
+                  ),
+                  const HGap.lg(),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppText.h2(habit.name),
+                        const VGap.xs(),
+                        AppText.caption(habit.frequency.label),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const VGap.lg(),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText.subtitle('Resumen'),
+                  const VGap.md(),
+                  _DetailRow(label: 'Estado hoy', value: streakLabel),
+                  const VGap.sm(),
+                  _DetailRow(
+                    label: 'Días registrados',
+                    value: '$completedCount',
+                  ),
+                  if (habit.reminderEnabled) ...[
+                    const VGap.sm(),
+                    _DetailRow(
+                      label: 'Recordatorio',
+                      value: _formatReminder(habit.reminderHour, habit.reminderMinute),
+                    ),
+                  ],
+                ],
+              ),
+            ),
             const Spacer(),
+            AppText.caption(
+              'Heatmap y estadísticas detalladas — PR-08.',
+              color: AppColors.textSecondary,
+            ),
+            const VGap.xl(),
             AppButton(
               label: 'Editar',
               variant: AppButtonVariant.secondary,
               icon: LucideIcons.pencil,
               fullWidth: true,
-              onPressed: null,
+              onPressed: () => context.push(Routes.editHabitPath(habitId)),
             ),
             const VGap.md(),
             AppButton(
@@ -40,18 +151,34 @@ class HabitDetailScreen extends StatelessWidget {
               variant: AppButtonVariant.danger,
               icon: LucideIcons.trash2,
               fullWidth: true,
-              onPressed: null,
-            ),
-            const VGap.md(),
-            AppButton(
-              label: 'Volver',
-              variant: AppButtonVariant.ghost,
-              fullWidth: true,
-              onPressed: () => context.pop(),
+              onPressed: () => _confirmDelete(context, ref),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  static String _formatReminder(int? hour, int? minute) {
+    if (hour == null || minute == null) return '—';
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        AppText.body(label, color: AppColors.textSecondary),
+        AppText.body(value),
+      ],
     );
   }
 }
