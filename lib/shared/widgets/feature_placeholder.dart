@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 
 class FeaturePlaceholder extends StatelessWidget {
   const FeaturePlaceholder({
@@ -18,25 +19,23 @@ class FeaturePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: AppSpacing.screenPadding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (icon != null) ...[
               Icon(icon, size: 40, color: AppColors.primary),
-              const SizedBox(height: AppSpacing.lg),
+              const VGap.lg(),
             ],
-            Text(title, style: theme.textTheme.displayMedium),
+            AppText.h2(title),
             if (subtitle != null) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Text(subtitle!, style: theme.textTheme.bodyMedium),
+              const VGap.sm(),
+              AppText.body(subtitle!, color: AppColors.textSecondary),
             ],
             if (child != null) ...[
-              const SizedBox(height: AppSpacing.xl),
+              const VGap.xl(),
               Expanded(child: child!),
             ],
           ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/shared/widgets/feature_placeholder.dart';
+import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -10,7 +11,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Hábitos')),
+      appBar: AppBar(title: const AppText.subtitle('Hábitos')),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(Routes.createHabit),
         child: const Icon(LucideIcons.plus),

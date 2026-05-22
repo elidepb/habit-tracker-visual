@@ -4,6 +4,7 @@ import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_durations.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -44,8 +45,6 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: FadeTransition(
         opacity: _fadeAnimation,
@@ -53,30 +52,21 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
+              AppCard(
+                variant: AppCardVariant.outlined,
                 padding: const EdgeInsets.all(AppSpacing.xl),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.border),
-                ),
                 child: const Icon(
                   LucideIcons.activity,
                   size: 56,
                   color: AppColors.primary,
                 ),
               ),
-              const SizedBox(height: AppSpacing.xl),
-              Text(
-                'Habit Tracker',
-                style: theme.textTheme.displayMedium,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
+              const VGap.xl(),
+              const AppText.h1('Habit Tracker'),
+              const VGap.sm(),
+              const AppText.subtitle(
                 'Visual',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+                color: AppColors.textSecondary,
               ),
             ],
           ),
