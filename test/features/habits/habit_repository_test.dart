@@ -70,6 +70,17 @@ void main() {
     expect(uncompleted!.isCompletedOn(today), isFalse);
   });
 
+  test('save actualiza un hábito existente', () async {
+    final habit = sampleHabit(name: 'Original');
+    await repository.save(habit);
+
+    final updated = habit.copyWith(name: 'Actualizado');
+    await repository.save(updated);
+
+    expect(repository.getById(habit.id)?.name, 'Actualizado');
+    expect(repository.getById(habit.id)?.completedDates, habit.completedDates);
+  });
+
   test('todayCompletionRate calcula porcentaje del día', () async {
     final a = sampleHabit(name: 'A');
     final b = sampleHabit(name: 'B');

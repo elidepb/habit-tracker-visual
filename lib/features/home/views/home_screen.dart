@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/shared/widgets/feature_placeholder.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
@@ -52,9 +53,9 @@ class HomeScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(
-                        LucideIcons.circle,
+                        HabitIcons.fromName(habit.iconName),
                         color: habit.color,
-                        size: 12,
+                        size: 20,
                       ),
                       const HGap.md(),
                       Expanded(
