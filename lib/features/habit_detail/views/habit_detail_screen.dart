@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/shared/widgets/feature_placeholder.dart';
+import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HabitDetailScreen extends StatelessWidget {
@@ -12,7 +14,7 @@ class HabitDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Hábito $habitId'),
+        title: AppText.subtitle('Hábito $habitId'),
         leading: IconButton(
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
@@ -22,15 +24,32 @@ class HabitDetailScreen extends StatelessWidget {
         title: 'Detalle del hábito',
         subtitle: 'Heatmap individual, estadísticas e historial — PR-08.',
         icon: LucideIcons.target,
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () => context.pop(),
-              child: const Text('Volver'),
+        child: Column(
+          children: [
+            const Spacer(),
+            AppButton(
+              label: 'Editar',
+              variant: AppButtonVariant.secondary,
+              icon: LucideIcons.pencil,
+              fullWidth: true,
+              onPressed: null,
             ),
-          ),
+            const VGap.md(),
+            AppButton(
+              label: 'Eliminar',
+              variant: AppButtonVariant.danger,
+              icon: LucideIcons.trash2,
+              fullWidth: true,
+              onPressed: null,
+            ),
+            const VGap.md(),
+            AppButton(
+              label: 'Volver',
+              variant: AppButtonVariant.ghost,
+              fullWidth: true,
+              onPressed: () => context.pop(),
+            ),
+          ],
         ),
       ),
     );

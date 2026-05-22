@@ -4,6 +4,7 @@ import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/shared/widgets/feature_placeholder.dart';
+import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -20,24 +21,23 @@ class OnboardingScreen extends StatelessWidget {
         icon: LucideIcons.sparkles,
         child: Column(
           children: [
-            _OnboardingHighlight(
+            const _OnboardingHighlight(
               icon: LucideIcons.grid,
               title: 'Heatmap visual',
               description: 'Visualiza tu progreso anual de un vistazo.',
             ),
-            const SizedBox(height: AppSpacing.lg),
-            _OnboardingHighlight(
+            const VGap.lg(),
+            const _OnboardingHighlight(
               icon: LucideIcons.flame,
               title: 'Rachas',
               description: 'Mantén la motivación con streaks diarios.',
             ),
             const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => context.go(Routes.home),
-                child: const Text('Comenzar'),
-              ),
+            AppButton(
+              label: 'Comenzar',
+              fullWidth: true,
+              size: AppButtonSize.lg,
+              onPressed: () => context.go(Routes.home),
             ),
           ],
         ),
@@ -59,27 +59,18 @@ class _OnboardingHighlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
+    return AppCard(
       child: Row(
         children: [
           Icon(icon, color: AppColors.secondary),
-          const SizedBox(width: AppSpacing.lg),
+          const HGap.lg(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: theme.textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.xs),
-                Text(description, style: theme.textTheme.bodyMedium),
+                AppText.subtitle(title),
+                const VGap.xs(),
+                AppText.caption(description),
               ],
             ),
           ),
