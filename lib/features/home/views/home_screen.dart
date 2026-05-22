@@ -4,78 +4,96 @@ import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
-import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
+import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
-import 'package:habit_tracker_visual/shared/widgets/feature_placeholder.dart';
+import 'package:habit_tracker_visual/features/habits/utils/streak_calculator.dart';
+import 'package:habit_tracker_visual/features/home/widgets/home_daily_summary.dart';
+import 'package:habit_tracker_visual/features/home/widgets/home_empty_state.dart';
+import 'package:habit_tracker_visual/features/home/widgets/home_quick_stats.dart';
+import 'package:habit_tracker_visual/features/home/widgets/habit_tile.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
+  int _bestStreak(List<HabitModel> habits) {
+    if (habits.isEmpty) return 0;
+    return habits
+        .map((h) => StreakCalculator.currentStreak(h.completedDates))
+        .reduce((a, b) => a > b ? a : b);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final habitsAsync = ref.watch(habitsStreamProvider);
     final stats = ref.watch(todayStatsProvider);
 
-    final subtitle = habitsAsync.when(
-      data: (habits) {
-        if (habits.isEmpty) {
-          return 'Sin hábitos aún. Crea el primero con el botón +';
-        }
-        final percent = (stats.rate * 100).round();
-        return '${habits.length} hábitos · $percent% completado hoy';
-      },
-      loading: () => 'Cargando hábitos...',
-      error: (_, __) => 'Error al cargar hábitos',
-    );
-
     return Scaffold(
-      appBar: AppBar(title: const AppText.subtitle('Hábitos')),
+      appBar: AppBar(
+        title: const AppText.subtitle('Hábitos'),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.barChart2),
+            tooltip: 'Estadísticas',
+            onPressed: () => context.go(Routes.statistics),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(Routes.createHabit),
+        tooltip: 'Nuevo hábito',
         child: const Icon(LucideIcons.plus),
       ),
-      body: FeaturePlaceholder(
-        title: 'Dashboard',
-        subtitle: subtitle,
-        icon: LucideIcons.layoutDashboard,
-        child: habitsAsync.when(
-          data: (habits) {
-            if (habits.isEmpty) return const SizedBox.shrink();
-            return ListView.separated(
-              itemCount: habits.length,
-              separatorBuilder: (_, __) => const VGap.md(),
-              itemBuilder: (context, index) {
-                final habit = habits[index];
-                return AppCard(
-                  onTap: () => context.push(Routes.habitDetailPath(habit.id)),
-                  child: Row(
-                    children: [
-                      Icon(
-                        HabitIcons.fromName(habit.iconName),
-                        color: habit.color,
-                        size: 20,
-                      ),
-                      const HGap.md(),
-                      Expanded(
-                        child: AppText.subtitle(habit.name),
-                      ),
-                      if (habit.isCompletedToday())
-                        const Icon(
-                          LucideIcons.check,
-                          color: AppColors.success,
-                          size: 20,
-                        ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => const SizedBox.shrink(),
+      body: habitsAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(
+          child: AppText.body(
+            'No se pudieron cargar los hábitos',
+            color: AppColors.error,
+          ),
         ),
+        data: (habits) {
+          if (habits.isEmpty) {
+            return HomeEmptyState(
+              onCreateTap: () => context.push(Routes.createHabit),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(habitsStreamProvider);
+            },
+            color: AppColors.primary,
+            child: ListView(
+              padding: AppSpacing.screenPadding,
+              children: [
+                HomeDailySummary(
+                  completed: stats.completed,
+                  total: stats.total,
+                  rate: stats.rate,
+                ),
+                const VGap.lg(),
+                HomeQuickStats(
+                  completed: stats.completed,
+                  total: stats.total,
+                  rate: stats.rate,
+                  bestStreak: _bestStreak(habits),
+                ),
+                const VGap.xl(),
+                const AppText.subtitle('Tus hábitos'),
+                const VGap.md(),
+                ...habits.map(
+                  (habit) => Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: HabitTile(habit: habit),
+                  ),
+                ),
+                const VGap.xxxl(),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
