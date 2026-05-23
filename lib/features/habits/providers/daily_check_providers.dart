@@ -32,6 +32,24 @@ class DailyCheckNotifier extends Notifier<Set<String>> {
     }
   }
 
+  Future<DailyCheckResult?> toggleDate(String habitId, DateTime date) async {
+    if (state.contains(habitId)) return null;
+
+    state = {...state, habitId};
+
+    try {
+      final result = await ref
+          .read(dailyCheckServiceProvider)
+          .toggleForDate(habitId, date);
+      if (result != null) {
+        _triggerHaptic(result);
+      }
+      return result;
+    } finally {
+      state = state.where((id) => id != habitId).toSet();
+    }
+  }
+
   void _triggerHaptic(DailyCheckResult result) {
     if (result.justCompleted) {
       HapticFeedback.mediumImpact();
