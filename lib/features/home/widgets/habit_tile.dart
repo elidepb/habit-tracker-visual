@@ -3,47 +3,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
-import 'package:habit_tracker_visual/core/theme/app_durations.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
 import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
+import 'package:habit_tracker_visual/features/habits/providers/daily_check_providers.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
-import 'package:habit_tracker_visual/features/habits/utils/streak_calculator.dart';
+import 'package:habit_tracker_visual/shared/widgets/habit_check_button.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class HabitTile extends ConsumerStatefulWidget {
+class HabitTile extends ConsumerWidget {
   const HabitTile({super.key, required this.habit});
 
   final HabitModel habit;
 
-  @override
-  ConsumerState<HabitTile> createState() => _HabitTileState();
-}
-
-class _HabitTileState extends ConsumerState<HabitTile> {
-  bool _isToggling = false;
-
-  Future<void> _toggleCompletion() async {
-    if (_isToggling) return;
-    setState(() => _isToggling = true);
-
-    await ref
-        .read(habitRepositoryProvider)
-        .toggleCompletion(widget.habit.id, DateTime.now());
-
-    if (mounted) setState(() => _isToggling = false);
-  }
-
-  Future<bool> _confirmDelete() async {
+  Future<bool> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         title: const AppText.subtitle('Eliminar hábito'),
         content: AppText.body(
-          '¿Eliminar "${widget.habit.name}"? Esta acción no se puede deshacer.',
+          '¿Eliminar "${habit.name}"? Esta acción no se puede deshacer.',
           color: AppColors.textSecondary,
         ),
         actions: [
@@ -66,15 +48,14 @@ class _HabitTileState extends ConsumerState<HabitTile> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final habit = widget.habit;
-    final isCompleted = habit.isCompletedToday();
-    final streak = StreakCalculator.currentStreak(habit.completedDates);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isCompleted = ref.watch(isCompletedTodayProvider(habit.id));
+    final streak = ref.watch(habitStreakProvider(habit.id));
 
     return Dismissible(
       key: ValueKey(habit.id),
       direction: DismissDirection.endToStart,
-      confirmDismiss: (_) => _confirmDelete(),
+      confirmDismiss: (_) => _confirmDelete(context, ref),
       onDismissed: (_) {
         ref.read(habitRepositoryProvider).delete(habit.id);
       },
@@ -91,11 +72,10 @@ class _HabitTileState extends ConsumerState<HabitTile> {
         onTap: () => context.push(Routes.habitDetailPath(habit.id)),
         child: Row(
           children: [
-            _CompletionButton(
-              isCompleted: isCompleted,
+            HabitCheckButton(
+              habitId: habit.id,
               color: habit.color,
-              isLoading: _isToggling,
-              onTap: _toggleCompletion,
+              onToggled: (result) => showDailyCheckFeedback(context, result),
             ),
             const HGap.lg(),
             Container(
@@ -127,16 +107,13 @@ class _HabitTileState extends ConsumerState<HabitTile> {
                       children: [
                         AppText.caption(habit.frequency.label),
                         const HGap.xs(),
-                        Icon(
+                        const Icon(
                           LucideIcons.flame,
                           size: 12,
                           color: AppColors.accent,
                         ),
                         const HGap.xs(),
-                        AppText.caption(
-                          '$streak',
-                          color: AppColors.accent,
-                        ),
+                        AppText.caption('$streak', color: AppColors.accent),
                       ],
                     )
                   else
@@ -151,52 +128,6 @@ class _HabitTileState extends ConsumerState<HabitTile> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _CompletionButton extends StatelessWidget {
-  const _CompletionButton({
-    required this.isCompleted,
-    required this.color,
-    required this.isLoading,
-    required this.onTap,
-  });
-
-  final bool isCompleted;
-  final Color color;
-  final bool isLoading;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isLoading ? null : onTap,
-      child: AnimatedContainer(
-        duration: AppDurations.normal,
-        curve: Curves.easeOut,
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: isCompleted ? color : Colors.transparent,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isCompleted ? color : AppColors.border,
-            width: 2,
-          ),
-        ),
-        child: isLoading
-            ? Padding(
-                padding: const EdgeInsets.all(6),
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: isCompleted ? Colors.white : color,
-                ),
-              )
-            : isCompleted
-                ? const Icon(Icons.check, color: Colors.white, size: 18)
-                : null,
       ),
     );
   }
