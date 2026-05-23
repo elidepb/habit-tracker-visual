@@ -4,6 +4,7 @@ import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_durations.dart';
 import 'package:habit_tracker_visual/features/habits/models/daily_check_result.dart';
 import 'package:habit_tracker_visual/features/habits/providers/daily_check_providers.dart';
+import 'package:habit_tracker_visual/shared/widgets/ui/app_skeleton.dart';
 
 enum HabitCheckSize { sm, md, lg }
 
@@ -107,12 +108,8 @@ class _HabitCheckButtonState extends ConsumerState<HabitCheckButton>
                 : null,
           ),
           child: isLoading
-              ? Padding(
-                  padding: EdgeInsets.all(_dimension * 0.2),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: isCompleted ? Colors.white : widget.color,
-                  ),
+              ? Center(
+                  child: AppLoadingIndicator(size: _dimension * 0.45),
                 )
               : isCompleted
                   ? Icon(Icons.check, color: Colors.white, size: _iconSize)
@@ -136,6 +133,11 @@ void showDailyCheckFeedback(BuildContext context, DailyCheckResult result) {
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
     );
 }

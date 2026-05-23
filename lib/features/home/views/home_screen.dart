@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
@@ -45,9 +46,9 @@ class HomeScreen extends ConsumerWidget {
         onPressed: () => context.push(Routes.createHabit),
         tooltip: 'Nuevo hábito',
         child: const Icon(LucideIcons.plus),
-      ),
+      ).fadeSlideIn(delay: const Duration(milliseconds: 200)),
       body: habitsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const HomeLoadingSkeleton(),
         error: (error, _) => Center(
           child: AppText.body(
             'No se pudieron cargar los hábitos',
@@ -73,23 +74,27 @@ class HomeScreen extends ConsumerWidget {
                   completed: stats.completed,
                   total: stats.total,
                   rate: stats.rate,
-                ),
+                ).fadeSlideIn(),
                 const VGap.lg(),
                 HomeQuickStats(
                   completed: stats.completed,
                   total: stats.total,
                   rate: stats.rate,
                   bestStreak: _bestStreak(habits),
+                ).fadeSlideIn(delay: const Duration(milliseconds: 50)),
+                const VGap.xl(),
+                const HomeHeatmapSection().fadeSlideIn(
+                  delay: const Duration(milliseconds: 100),
                 ),
                 const VGap.xl(),
-                const HomeHeatmapSection(),
-                const VGap.xl(),
-                const AppText.subtitle('Tus hábitos'),
+                const AppText.subtitle('Tus hábitos').fadeSlideIn(
+                  delay: const Duration(milliseconds: 150),
+                ),
                 const VGap.md(),
-                ...habits.map(
-                  (habit) => Padding(
+                ...habits.asMap().entries.map(
+                  (entry) => Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                    child: HabitTile(habit: habit),
+                    child: HabitTile(habit: entry.value, index: entry.key),
                   ),
                 ),
                 const VGap.xxxl(),

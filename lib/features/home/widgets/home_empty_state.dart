@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
@@ -20,21 +21,23 @@ class HomeEmptyState extends StatelessWidget {
               LucideIcons.layoutList,
               size: 48,
               color: AppColors.textSecondary.withValues(alpha: 0.5),
-            ),
+            ).fadeSlideIn(),
             const VGap.lg(),
-            const AppText.subtitle('Sin hábitos aún'),
+            AppText.subtitle('Sin hábitos aún').fadeSlideIn(
+              delay: Duration(milliseconds: 60),
+            ),
             const VGap.sm(),
-            const AppText.body(
+            AppText.body(
               'Crea tu primer hábito para empezar a trackear tu progreso.',
               color: AppColors.textSecondary,
               textAlign: TextAlign.center,
-            ),
+            ).fadeSlideIn(delay: Duration(milliseconds: 120)),
             const VGap.xl(),
             AppButton(
               label: 'Crear hábito',
               icon: LucideIcons.plus,
               onPressed: onCreateTap,
-            ),
+            ).fadeSlideIn(delay: Duration(milliseconds: 180)),
           ],
         ),
       ),

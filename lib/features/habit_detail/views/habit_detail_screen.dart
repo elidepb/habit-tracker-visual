@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
@@ -95,11 +96,15 @@ class HabitDetailScreen extends ConsumerWidget {
       body: ListView(
         padding: AppSpacing.screenPadding,
         children: [
-          HabitDetailHeader(habit: habit),
+          HabitDetailHeader(habit: habit).fadeSlideIn(),
           const VGap.xl(),
-          HabitStatsSection(stats: stats, accentColor: habit.color),
+          HabitStatsSection(stats: stats, accentColor: habit.color).fadeSlideIn(
+            delay: const Duration(milliseconds: 60),
+          ),
           const VGap.xl(),
-          const AppText.subtitle('Actividad anual'),
+          AppText.subtitle('Actividad anual').fadeSlideIn(
+            delay: const Duration(milliseconds: 100),
+          ),
           const VGap.md(),
           AppCard(
             child: ContributionHeatmap(
@@ -108,15 +113,17 @@ class HabitDetailScreen extends ConsumerWidget {
               intensityLabel: (level) =>
                   level > 0 ? 'Completado' : 'Sin completar',
             ),
-          ),
+          ).fadeSlideIn(delay: const Duration(milliseconds: 120)),
           const VGap.xl(),
-          const AppText.subtitle('Historial'),
+          AppText.subtitle('Historial').fadeSlideIn(
+            delay: const Duration(milliseconds: 140),
+          ),
           const VGap.md(),
           HabitHistoryCalendar(
             habitId: habitId,
             accentColor: habit.color,
             createdAt: habit.createdAt,
-          ),
+          ).fadeSlideIn(delay: const Duration(milliseconds: 160)),
           if (habit.reminderEnabled) ...[
             const VGap.lg(),
             AppCard(
@@ -154,7 +161,7 @@ class HabitDetailScreen extends ConsumerWidget {
             icon: LucideIcons.pencil,
             fullWidth: true,
             onPressed: () => context.push(Routes.editHabitPath(habitId)),
-          ),
+          ).fadeSlideIn(delay: const Duration(milliseconds: 200)),
           const VGap.md(),
           AppButton(
             label: 'Eliminar hábito',
@@ -162,7 +169,7 @@ class HabitDetailScreen extends ConsumerWidget {
             icon: LucideIcons.trash2,
             fullWidth: true,
             onPressed: () => _confirmDelete(context, ref),
-          ),
+          ).fadeSlideIn(delay: const Duration(milliseconds: 240)),
           const VGap.xl(),
         ],
       ),
