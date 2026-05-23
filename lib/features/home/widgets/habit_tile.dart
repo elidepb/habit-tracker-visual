@@ -10,6 +10,7 @@ import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart'
 import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/daily_check_providers.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
+import 'package:habit_tracker_visual/shared/widgets/confirm_delete_habit_dialog.dart';
 import 'package:habit_tracker_visual/shared/widgets/habit_check_button.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -20,35 +21,6 @@ class HabitTile extends ConsumerWidget {
   final HabitModel habit;
   final int index;
 
-  Future<bool> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const AppText.subtitle('Eliminar hábito'),
-        content: AppText.body(
-          '¿Eliminar "${habit.name}"? Esta acción no se puede deshacer.',
-          color: AppColors.textSecondary,
-        ),
-        actions: [
-          AppButton(
-            label: 'Cancelar',
-            variant: AppButtonVariant.ghost,
-            size: AppButtonSize.sm,
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          AppButton(
-            label: 'Eliminar',
-            variant: AppButtonVariant.danger,
-            size: AppButtonSize.sm,
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
-    );
-    return confirmed ?? false;
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isCompleted = ref.watch(isCompletedTodayProvider(habit.id));
@@ -57,7 +29,8 @@ class HabitTile extends ConsumerWidget {
     return Dismissible(
       key: ValueKey(habit.id),
       direction: DismissDirection.endToStart,
-      confirmDismiss: (_) => _confirmDelete(context, ref),
+      confirmDismiss: (_) =>
+          showDeleteHabitDialog(context, habitName: habit.name),
       onDismissed: (_) {
         ref.read(habitRepositoryProvider).delete(habit.id);
       },

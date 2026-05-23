@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/statistics/models/global_statistics.dart';
+import 'package:habit_tracker_visual/shared/widgets/stat_metric_card.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -20,7 +21,7 @@ class StatsOverviewSection extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _MetricCard(
+              child: StatMetricCard(
                 icon: LucideIcons.percent,
                 label: 'Consistencia',
                 value: '${stats.consistencyPercent}%',
@@ -29,7 +30,7 @@ class StatsOverviewSection extends StatelessWidget {
             ),
             const HGap.md(),
             Expanded(
-              child: _MetricCard(
+              child: StatMetricCard(
                 icon: LucideIcons.calendarCheck,
                 label: 'Días activos',
                 value: '${stats.activeDays}',
@@ -42,7 +43,7 @@ class StatsOverviewSection extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: _MetricCard(
+              child: StatMetricCard(
                 icon: LucideIcons.barChart2,
                 label: 'Promedio semanal',
                 value: stats.weeklyAverage.toStringAsFixed(1),
@@ -51,7 +52,7 @@ class StatsOverviewSection extends StatelessWidget {
             ),
             const HGap.md(),
             Expanded(
-              child: _MetricCard(
+              child: StatMetricCard(
                 icon: LucideIcons.flame,
                 label: 'Mejor racha',
                 value: '${stats.bestStreak}',
@@ -61,36 +62,6 @@ class StatsOverviewSection extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 18),
-          const VGap.sm(),
-          AppText.h2(value),
-          const VGap.xs(),
-          AppText.caption(label),
-        ],
-      ),
     );
   }
 }

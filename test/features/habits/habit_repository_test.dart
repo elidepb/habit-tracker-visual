@@ -91,4 +91,18 @@ void main() {
     expect(repository.completedTodayCount, 1);
     expect(repository.todayCompletionRate, 0.5);
   });
+
+  test('todayStatsFor calcula métricas en un solo paso', () async {
+    final a = sampleHabit(name: 'A');
+    final b = sampleHabit(name: 'B');
+    await repository.save(a);
+    await repository.save(b);
+    await repository.toggleCompletion(a.id, DateTime.now());
+
+    final stats = repository.todayStatsFor(repository.getAll());
+
+    expect(stats.total, 2);
+    expect(stats.completed, 1);
+    expect(stats.rate, 0.5);
+  });
 }

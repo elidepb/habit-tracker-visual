@@ -5,7 +5,6 @@ import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
-import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/features/habits/utils/streak_calculator.dart';
 import 'package:habit_tracker_visual/features/home/widgets/home_daily_summary.dart';
@@ -18,13 +17,6 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
-
-  int _bestStreak(List<HabitModel> habits) {
-    if (habits.isEmpty) return 0;
-    return habits
-        .map((h) => StreakCalculator.currentStreak(h.completedDates))
-        .reduce((a, b) => a > b ? a : b);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -62,42 +54,56 @@ class HomeScreen extends ConsumerWidget {
             );
           }
 
+          final bestStreak = StreakCalculator.bestAcrossHabits(habits);
+
           return RefreshIndicator(
             onRefresh: () async {
               ref.invalidate(habitsStreamProvider);
             },
             color: AppColors.primary,
-            child: ListView(
-              padding: AppSpacing.screenPadding,
-              children: [
-                HomeDailySummary(
-                  completed: stats.completed,
-                  total: stats.total,
-                  rate: stats.rate,
-                ).fadeSlideIn(),
-                const VGap.lg(),
-                HomeQuickStats(
-                  completed: stats.completed,
-                  total: stats.total,
-                  rate: stats.rate,
-                  bestStreak: _bestStreak(habits),
-                ).fadeSlideIn(delay: const Duration(milliseconds: 50)),
-                const VGap.xl(),
-                const HomeHeatmapSection().fadeSlideIn(
-                  delay: const Duration(milliseconds: 100),
-                ),
-                const VGap.xl(),
-                const AppText.subtitle('Tus hábitos').fadeSlideIn(
-                  delay: const Duration(milliseconds: 150),
-                ),
-                const VGap.md(),
-                ...habits.asMap().entries.map(
-                  (entry) => Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                    child: HabitTile(habit: entry.value, index: entry.key),
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: AppSpacing.screenPadding,
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      HomeDailySummary(
+                        completed: stats.completed,
+                        total: stats.total,
+                        rate: stats.rate,
+                      ).fadeSlideIn(),
+                      const VGap.lg(),
+                      HomeQuickStats(
+                        completed: stats.completed,
+                        total: stats.total,
+                        rate: stats.rate,
+                        bestStreak: bestStreak,
+                      ).fadeSlideIn(delay: const Duration(milliseconds: 50)),
+                      const VGap.xl(),
+                      const HomeHeatmapSection().fadeSlideIn(
+                        delay: const Duration(milliseconds: 100),
+                      ),
+                      const VGap.xl(),
+                      AppText.subtitle('Tus hábitos').fadeSlideIn(
+                        delay: const Duration(milliseconds: 150),
+                      ),
+                      const VGap.md(),
+                    ]),
                   ),
                 ),
-                const VGap.xxxl(),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xl,
+                  ),
+                  sliver: SliverList.builder(
+                    itemCount: habits.length,
+                    itemBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                      child: HabitTile(habit: habits[index], index: index),
+                    ),
+                  ),
+                ),
+                const SliverToBoxAdapter(child: VGap.xxxl()),
               ],
             ),
           );

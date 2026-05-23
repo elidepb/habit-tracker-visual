@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
-import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/features/settings/providers/notification_providers.dart';
+import 'package:habit_tracker_visual/features/settings/utils/notification_sync_helper.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -12,33 +12,17 @@ class SettingsScreen extends ConsumerWidget {
 
   Future<void> _toggleNotifications(WidgetRef ref, bool value) async {
     await ref.read(notificationsEnabledProvider.notifier).setEnabled(value);
-
-    if (value) {
-      await ref.read(notificationSchedulerProvider).sync(
-            habits: ref.read(habitsProvider),
-            notificationsEnabled: true,
-            requestPermissionIfNeeded: true,
-          );
-      ref.invalidate(notificationPermissionProvider);
-    } else {
-      await ref.read(notificationSchedulerProvider).sync(
-            habits: ref.read(habitsProvider),
-            notificationsEnabled: false,
-            requestPermissionIfNeeded: false,
-          );
-    }
+    await syncNotifications(
+      ref,
+      notificationsEnabled: value,
+      requestPermissionIfNeeded: value,
+    );
   }
 
   Future<void> _requestPermissions(WidgetRef ref) async {
     final service = ref.read(notificationServiceProvider);
     await service.requestPermissions();
-    ref.invalidate(notificationPermissionProvider);
-
-    await ref.read(notificationSchedulerProvider).sync(
-          habits: ref.read(habitsProvider),
-          notificationsEnabled: ref.read(notificationsEnabledProvider),
-          requestPermissionIfNeeded: false,
-        );
+    await syncNotifications(ref);
   }
 
   @override

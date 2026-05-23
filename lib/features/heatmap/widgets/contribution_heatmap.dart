@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/core/utils/date_formatters.dart';
 import 'package:habit_tracker_visual/features/heatmap/models/heatmap_data.dart';
 import 'package:habit_tracker_visual/features/heatmap/utils/heatmap_calculator.dart';
 import 'package:habit_tracker_visual/features/heatmap/widgets/heatmap_legend.dart';
@@ -21,11 +22,6 @@ class ContributionHeatmap extends StatelessWidget {
   final double cellGap;
   final bool showMonthLabels;
   final String Function(int level)? intensityLabel;
-
-  static const _monthNames = [
-    'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +52,7 @@ class ContributionHeatmap extends StatelessWidget {
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: _HeatmapGrid(
+                  child: _InteractiveHeatmapPaint(
                     data: data,
                     cellSize: cellSize,
                     cellGap: cellGap,
@@ -102,7 +98,7 @@ class _MonthLabels extends StatelessWidget {
           SizedBox(
             width: cellSize + cellGap,
             child: AppText.caption(
-              ContributionHeatmap._monthNames[date.month - 1],
+              DateFormatters.shortMonthNames[date.month - 1],
               color: AppColors.textSecondary,
             ),
           ),
@@ -127,7 +123,6 @@ class _DayLabels extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const labels = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
     return Column(
       children: List.generate(7, (index) {
         if (index.isOdd) {
@@ -138,7 +133,7 @@ class _DayLabels extends StatelessWidget {
           child: Align(
             alignment: Alignment.centerLeft,
             child: AppText.caption(
-              labels[index],
+              DateFormatters.heatmapDayLabels[index],
               color: AppColors.textSecondary,
             ),
           ),
@@ -148,8 +143,8 @@ class _DayLabels extends StatelessWidget {
   }
 }
 
-class _HeatmapGrid extends StatelessWidget {
-  const _HeatmapGrid({
+class _InteractiveHeatmapPaint extends StatefulWidget {
+  const _InteractiveHeatmapPaint({
     required this.data,
     required this.cellSize,
     required this.cellGap,
@@ -161,97 +156,72 @@ class _HeatmapGrid extends StatelessWidget {
   final double cellGap;
   final String Function(int level)? intensityLabel;
 
-  String _tooltipForCell(int row, int col) {
-    final date = data.startDate.add(Duration(days: col * 7 + row));
-    final level = data.intensityAt(row, col);
-    final dateStr = '${date.day}/${date.month}/${date.year}';
-    if (intensityLabel != null) {
-      return '$dateStr — ${intensityLabel!(level)}';
+  @override
+  State<_InteractiveHeatmapPaint> createState() =>
+      _InteractiveHeatmapPaintState();
+}
+
+class _InteractiveHeatmapPaintState extends State<_InteractiveHeatmapPaint> {
+  String? _selectedTooltip;
+
+  ({int row, int col})? _cellAt(Offset position) {
+    final col = (position.dx / (widget.cellSize + widget.cellGap)).floor();
+    final row = (position.dy / (widget.cellSize + widget.cellGap)).floor();
+    if (row < 0 ||
+        col < 0 ||
+        row >= HeatmapCalculator.daysPerWeek ||
+        col >= widget.data.weeks) {
+      return null;
     }
-    if (level == 0) return '$dateStr — Sin actividad';
-    return '$dateStr — Nivel $level';
+    return (row: row, col: col);
+  }
+
+  String _tooltipForCell(int row, int col) {
+    final date = widget.data.startDate.add(Duration(days: col * 7 + row));
+    final level = widget.data.intensityAt(row, col);
+    return DateFormatters.heatmapTooltip(
+      date,
+      level: level,
+      intensityLabel: widget.intensityLabel,
+    );
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    final cell = _cellAt(details.localPosition);
+    if (cell == null) return;
+    setState(() => _selectedTooltip = _tooltipForCell(cell.row, cell.col));
   }
 
   @override
   Widget build(BuildContext context) {
+    final width =
+        widget.data.weeks * (widget.cellSize + widget.cellGap) - widget.cellGap;
+    final height = HeatmapCalculator.daysPerWeek *
+            (widget.cellSize + widget.cellGap) -
+        widget.cellGap;
+
     return Column(
-      children: List.generate(HeatmapCalculator.daysPerWeek, (row) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: row < 6 ? cellGap : 0),
-          child: Row(
-            children: List.generate(data.weeks, (col) {
-              final intensity = data.intensityAt(row, col);
-              return Padding(
-                padding: EdgeInsets.only(right: col < data.weeks - 1 ? cellGap : 0),
-                child: Tooltip(
-                  message: _tooltipForCell(row, col),
-                  child: _HeatmapCell(
-                    intensity: intensity,
-                    size: cellSize,
-                  ),
-                ),
-              );
-            }),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTapUp: _handleTapUp,
+          child: CustomPaint(
+            size: Size(width, height),
+            painter: _HeatmapPainter(
+              data: widget.data,
+              cellSize: widget.cellSize,
+              cellGap: widget.cellGap,
+            ),
           ),
-        );
-      }),
-    );
-  }
-}
-
-class _HeatmapCell extends StatelessWidget {
-  const _HeatmapCell({required this.intensity, required this.size});
-
-  final int intensity;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final level = intensity.clamp(0, AppColors.heatmapLevels.length - 1);
-
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: AppColors.heatmapLevels[level],
-        borderRadius: BorderRadius.circular(2),
-        border: Border.all(
-          color: AppColors.border.withValues(alpha: 0.3),
-          width: 0.5,
         ),
-      ),
-    );
-  }
-}
-
-class ContributionHeatmapPaint extends StatelessWidget {
-  const ContributionHeatmapPaint({
-    super.key,
-    required this.data,
-    this.cellSize = 12,
-    this.cellGap = 3,
-  });
-
-  final HeatmapData data;
-  final double cellSize;
-  final double cellGap;
-
-  @override
-  Widget build(BuildContext context) {
-    if (data.isEmpty) return const SizedBox.shrink();
-
-    final width = data.weeks * (cellSize + cellGap) - cellGap;
-    final height = HeatmapCalculator.daysPerWeek * (cellSize + cellGap) - cellGap;
-
-    return RepaintBoundary(
-      child: CustomPaint(
-        size: Size(width, height),
-        painter: _HeatmapPainter(
-          data: data,
-          cellSize: cellSize,
-          cellGap: cellGap,
-        ),
-      ),
+        if (_selectedTooltip != null) ...[
+          const VGap.sm(),
+          AppText.caption(
+            _selectedTooltip!,
+            color: AppColors.textSecondary,
+          ),
+        ],
+      ],
     );
   }
 }

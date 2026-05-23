@@ -5,6 +5,7 @@ import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/core/utils/date_formatters.dart';
 import 'package:habit_tracker_visual/features/habit_detail/providers/habit_detail_providers.dart';
 import 'package:habit_tracker_visual/features/habit_detail/widgets/habit_detail_header.dart';
 import 'package:habit_tracker_visual/features/habit_detail/widgets/habit_history_calendar.dart';
@@ -12,6 +13,8 @@ import 'package:habit_tracker_visual/features/habit_detail/widgets/habit_stats_s
 import 'package:habit_tracker_visual/features/heatmap/providers/heatmap_providers.dart';
 import 'package:habit_tracker_visual/features/heatmap/widgets/contribution_heatmap.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
+import 'package:habit_tracker_visual/shared/widgets/confirm_delete_habit_dialog.dart';
+import 'package:habit_tracker_visual/shared/widgets/habit_not_found_screen.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -21,42 +24,12 @@ class HabitDetailScreen extends ConsumerWidget {
   final String habitId;
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const AppText.subtitle('Eliminar hábito'),
-        content: const AppText.body(
-          'Esta acción no se puede deshacer. ¿Deseas eliminar este hábito?',
-          color: AppColors.textSecondary,
-        ),
-        actions: [
-          AppButton(
-            label: 'Cancelar',
-            variant: AppButtonVariant.ghost,
-            size: AppButtonSize.sm,
-            onPressed: () => Navigator.of(context).pop(false),
-          ),
-          AppButton(
-            label: 'Eliminar',
-            variant: AppButtonVariant.danger,
-            size: AppButtonSize.sm,
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !context.mounted) return;
+    final confirmed = await showDeleteHabitDialog(context);
+    if (!confirmed || !context.mounted) return;
 
     await ref.read(habitRepositoryProvider).delete(habitId);
     if (!context.mounted) return;
     context.pop();
-  }
-
-  static String _formatReminder(int? hour, int? minute) {
-    if (hour == null || minute == null) return '—';
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -64,15 +37,7 @@ class HabitDetailScreen extends ConsumerWidget {
     final habit = ref.watch(habitByIdProvider(habitId));
 
     if (habit == null) {
-      return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(LucideIcons.arrowLeft),
-            onPressed: () => context.pop(),
-          ),
-        ),
-        body: const Center(child: AppText.body('Hábito no encontrado')),
-      );
+      return const HabitNotFoundScreen();
     }
 
     final stats = ref.watch(habitStatisticsProvider(habitId));
@@ -142,7 +107,7 @@ class HabitDetailScreen extends ConsumerWidget {
                         const AppText.subtitle('Recordatorio'),
                         const VGap.xs(),
                         AppText.caption(
-                          _formatReminder(
+                          DateFormatters.reminder(
                             habit.reminderHour,
                             habit.reminderMinute,
                           ),

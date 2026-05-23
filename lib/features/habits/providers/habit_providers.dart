@@ -15,22 +15,17 @@ final habitsProvider = Provider<List<HabitModel>>((ref) {
   return ref.watch(habitsStreamProvider).value ?? [];
 });
 
-final habitByIdProvider = Provider.family<HabitModel?, String>((ref, id) {
+final habitsByIdProvider = Provider<Map<String, HabitModel>>((ref) {
   final habits = ref.watch(habitsProvider);
-  for (final habit in habits) {
-    if (habit.id == id) return habit;
-  }
-  return ref.watch(habitRepositoryProvider).getById(id);
+  return {for (final habit in habits) habit.id: habit};
+});
+
+final habitByIdProvider = Provider.family<HabitModel?, String>((ref, id) {
+  final habitsById = ref.watch(habitsByIdProvider);
+  return habitsById[id] ?? ref.watch(habitRepositoryProvider).getById(id);
 });
 
 final todayStatsProvider = Provider<({int completed, int total, double rate})>((ref) {
-  final repository = ref.watch(habitRepositoryProvider);
-  ref.watch(habitsStreamProvider);
-  final total = repository.getAll().length;
-  final completed = repository.completedTodayCount;
-  return (
-    completed: completed,
-    total: total,
-    rate: repository.todayCompletionRate,
-  );
+  final habits = ref.watch(habitsProvider);
+  return ref.watch(habitRepositoryProvider).todayStatsFor(habits);
 });

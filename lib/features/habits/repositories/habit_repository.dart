@@ -38,14 +38,25 @@ class HabitRepository {
     return updated;
   }
 
-  int get completedTodayCount {
+  ({int completed, int total, double rate}) todayStatsFor(List<HabitModel> habits) {
+    if (habits.isEmpty) {
+      return (completed: 0, total: 0, rate: 0.0);
+    }
+
     final today = DateTime.now();
-    return getAll().where((h) => h.isCompletedOn(today)).length;
+    var completed = 0;
+    for (final habit in habits) {
+      if (habit.isCompletedOn(today)) completed++;
+    }
+
+    return (
+      completed: completed,
+      total: habits.length,
+      rate: completed / habits.length,
+    );
   }
 
-  double get todayCompletionRate {
-    final habits = getAll();
-    if (habits.isEmpty) return 0;
-    return completedTodayCount / habits.length;
-  }
+  int get completedTodayCount => todayStatsFor(getAll()).completed;
+
+  double get todayCompletionRate => todayStatsFor(getAll()).rate;
 }

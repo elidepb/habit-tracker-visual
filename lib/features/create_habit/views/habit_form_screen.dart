@@ -12,6 +12,7 @@ import 'package:habit_tracker_visual/features/habits/models/habit_frequency.dart
 import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/features/habits/validators/habit_validators.dart';
+import 'package:habit_tracker_visual/shared/widgets/habit_not_found_screen.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -37,6 +38,22 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
   TimeOfDay? _reminderTime;
   bool _isSaving = false;
   bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isEditing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _tryLoadHabit());
+    }
+  }
+
+  void _tryLoadHabit() {
+    if (_initialized || !widget.isEditing) return;
+    final habit = ref.read(habitByIdProvider(widget.habitId!));
+    if (habit == null || !mounted) return;
+    _loadHabit(habit);
+    setState(() {});
+  }
 
   @override
   void dispose() {
@@ -121,17 +138,8 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
     if (widget.isEditing) {
       final habit = ref.watch(habitByIdProvider(widget.habitId!));
       if (habit == null) {
-        return Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(LucideIcons.x),
-              onPressed: () => context.pop(),
-            ),
-          ),
-          body: const Center(child: AppText.body('Hábito no encontrado')),
-        );
+        return const HabitNotFoundScreen(leadingIcon: LucideIcons.x);
       }
-      _loadHabit(habit);
     }
 
     final accentColor = Color(_colorValue);
