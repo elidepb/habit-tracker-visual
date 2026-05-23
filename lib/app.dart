@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_visual/core/notifications/notification_bootstrap.dart';
 import 'package:habit_tracker_visual/core/router/app_router.dart';
 import 'package:habit_tracker_visual/core/theme/app_theme.dart';
 
@@ -10,11 +11,13 @@ class HabitTrackerApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
 
-    return MaterialApp.router(
-      title: 'Habit Tracker Visual',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      routerConfig: router,
+    return NotificationBootstrap(
+      child: MaterialApp.router(
+        title: 'Habit Tracker Visual',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.dark,
+        routerConfig: router,
+      ),
     );
   }
 }
