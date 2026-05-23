@@ -96,7 +96,7 @@ class SettingsScreen extends ConsumerWidget {
                   },
                   loading: () => const Padding(
                     padding: EdgeInsets.only(top: AppSpacing.md),
-                    child: LinearProgressIndicator(),
+                    child: Center(child: AppLoadingIndicator()),
                   ),
                   error: (_, __) => const SizedBox.shrink(),
                 ),

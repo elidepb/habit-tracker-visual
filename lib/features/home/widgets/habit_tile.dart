@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
@@ -14,9 +15,10 @@ import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HabitTile extends ConsumerWidget {
-  const HabitTile({super.key, required this.habit});
+  const HabitTile({super.key, required this.habit, this.index = 0});
 
   final HabitModel habit;
+  final int index;
 
   Future<bool> _confirmDelete(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
@@ -129,6 +131,6 @@ class HabitTile extends ConsumerWidget {
           ],
         ),
       ),
-    );
+    ).listItemIn(index + 3);
   }
 }

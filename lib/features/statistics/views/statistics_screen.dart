@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/statistics/providers/statistics_providers.dart';
@@ -29,15 +30,17 @@ class StatisticsScreen extends ConsumerWidget {
                   LucideIcons.barChart2,
                   size: 48,
                   color: AppColors.textSecondary.withValues(alpha: 0.5),
-                ),
+                ).fadeSlideIn(),
                 const VGap.lg(),
-                const AppText.subtitle('Sin datos aún'),
+                AppText.subtitle('Sin datos aún').fadeSlideIn(
+                  delay: const Duration(milliseconds: 60),
+                ),
                 const VGap.sm(),
-                const AppText.body(
+                AppText.body(
                   'Crea hábitos y registra checks para ver tus estadísticas globales.',
                   color: AppColors.textSecondary,
                   textAlign: TextAlign.center,
-                ),
+                ).fadeSlideIn(delay: const Duration(milliseconds: 120)),
               ],
             ),
           ),
@@ -50,11 +53,15 @@ class StatisticsScreen extends ConsumerWidget {
       body: ListView(
         padding: AppSpacing.screenPadding,
         children: [
-          StatsOverviewSection(stats: stats),
+          StatsOverviewSection(stats: stats).fadeSlideIn(),
           const VGap.xl(),
-          WeeklyActivityChart(weeklyActivity: stats.weeklyActivity),
+          WeeklyActivityChart(weeklyActivity: stats.weeklyActivity).fadeSlideIn(
+            delay: const Duration(milliseconds: 80),
+          ),
           const VGap.xl(),
-          HabitRankingList(rankings: stats.rankings),
+          HabitRankingList(rankings: stats.rankings).fadeSlideIn(
+            delay: const Duration(milliseconds: 160),
+          ),
           const VGap.xxxl(),
         ],
       ),

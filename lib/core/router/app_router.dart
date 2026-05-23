@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/animations/page_transitions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/features/create_habit/views/habit_form_screen.dart';
 import 'package:habit_tracker_visual/features/habit_detail/views/habit_detail_screen.dart';
@@ -21,11 +22,17 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: Routes.splash,
-        builder: (context, state) => const SplashScreen(),
+        pageBuilder: (context, state) => AppPageTransitions.fade(
+          key: state.pageKey,
+          child: const SplashScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.onboarding,
-        builder: (context, state) => const OnboardingScreen(),
+        pageBuilder: (context, state) => AppPageTransitions.fade(
+          key: state.pageKey,
+          child: const OnboardingScreen(),
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -36,7 +43,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Routes.home,
-                builder: (context, state) => const HomeScreen(),
+                pageBuilder: (context, state) => AppPageTransitions.fade(
+                  key: state.pageKey,
+                  child: const HomeScreen(),
+                ),
               ),
             ],
           ),
@@ -44,7 +54,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Routes.statistics,
-                builder: (context, state) => const StatisticsScreen(),
+                pageBuilder: (context, state) => AppPageTransitions.fade(
+                  key: state.pageKey,
+                  child: const StatisticsScreen(),
+                ),
               ),
             ],
           ),
@@ -52,7 +65,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Routes.settings,
-                builder: (context, state) => const SettingsScreen(),
+                pageBuilder: (context, state) => AppPageTransitions.fade(
+                  key: state.pageKey,
+                  child: const SettingsScreen(),
+                ),
               ),
             ],
           ),
@@ -61,22 +77,31 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.createHabit,
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const HabitFormScreen(),
+        pageBuilder: (context, state) => AppPageTransitions.slideFromRight(
+          key: state.pageKey,
+          child: const HabitFormScreen(),
+        ),
       ),
       GoRoute(
         path: '${Routes.editHabit}/:id',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final id = state.pathParameters['id']!;
-          return HabitFormScreen(habitId: id);
+          return AppPageTransitions.slideFromRight(
+            key: state.pageKey,
+            child: HabitFormScreen(habitId: id),
+          );
         },
       ),
       GoRoute(
         path: '${Routes.habitDetail}/:id',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final id = state.pathParameters['id']!;
-          return HabitDetailScreen(habitId: id);
+          return AppPageTransitions.slideFromRight(
+            key: state.pageKey,
+            child: HabitDetailScreen(habitId: id),
+          );
         },
       ),
     ],

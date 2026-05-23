@@ -90,19 +90,28 @@ class AppButton extends StatelessWidget {
   }
 
   Widget _buildChild(BuildContext context) {
-    if (isLoading) {
-      return SizedBox(
-        height: _iconSize,
-        width: _iconSize,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: variant == AppButtonVariant.ghost
-              ? AppColors.textSecondary
-              : Colors.white,
-        ),
-      );
-    }
+    return AnimatedSwitcher(
+      duration: AppDurations.fast,
+      child: isLoading
+          ? SizedBox(
+              key: const ValueKey('loading'),
+              height: _iconSize,
+              width: _iconSize,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: variant == AppButtonVariant.ghost
+                    ? AppColors.textSecondary
+                    : Colors.white,
+              ),
+            )
+          : KeyedSubtree(
+              key: const ValueKey('label'),
+              child: _buildLabel(context),
+            ),
+    );
+  }
 
+  Widget _buildLabel(BuildContext context) {
     final text = Text(
       label,
       style: TextStyle(
