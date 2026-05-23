@@ -8,6 +8,7 @@ import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/features/habits/utils/streak_calculator.dart';
 import 'package:habit_tracker_visual/features/home/widgets/home_daily_summary.dart';
+import 'package:habit_tracker_visual/features/home/widgets/home_heatmap_section.dart';
 import 'package:habit_tracker_visual/features/home/widgets/home_empty_state.dart';
 import 'package:habit_tracker_visual/features/home/widgets/home_quick_stats.dart';
 import 'package:habit_tracker_visual/features/home/widgets/habit_tile.dart';
@@ -80,6 +81,8 @@ class HomeScreen extends ConsumerWidget {
                   rate: stats.rate,
                   bestStreak: _bestStreak(habits),
                 ),
+                const VGap.xl(),
+                const HomeHeatmapSection(),
                 const VGap.xl(),
                 const AppText.subtitle('Tus hábitos'),
                 const VGap.md(),

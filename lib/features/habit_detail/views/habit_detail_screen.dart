@@ -6,6 +6,8 @@ import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
 import 'package:habit_tracker_visual/features/habits/providers/daily_check_providers.dart';
+import 'package:habit_tracker_visual/features/heatmap/providers/heatmap_providers.dart';
+import 'package:habit_tracker_visual/features/heatmap/widgets/contribution_heatmap.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/shared/widgets/habit_check_button.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
@@ -69,6 +71,7 @@ class HabitDetailScreen extends ConsumerWidget {
     final isCompleted = ref.watch(isCompletedTodayProvider(habitId));
     final streak = ref.watch(habitStreakProvider(habitId));
     final completedCount = habit.completedDates.length;
+    final heatmap = ref.watch(habitHeatmapProvider(habitId));
 
     return Scaffold(
       appBar: AppBar(
@@ -121,6 +124,22 @@ class HabitDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ],
+                ],
+              ),
+            ),
+            const VGap.lg(),
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const AppText.subtitle('Historial anual'),
+                  const VGap.md(),
+                  ContributionHeatmap(
+                    data: heatmap,
+                    showMonthLabels: true,
+                    intensityLabel: (level) =>
+                        level > 0 ? 'Completado' : 'Sin completar',
+                  ),
                 ],
               ),
             ),
@@ -188,11 +207,6 @@ class HabitDetailScreen extends ConsumerWidget {
               ),
             ),
             const Spacer(),
-            AppText.caption(
-              'Heatmap y estadísticas detalladas — PR-08.',
-              color: AppColors.textSecondary,
-            ),
-            const VGap.xl(),
             AppButton(
               label: 'Editar',
               variant: AppButtonVariant.secondary,
