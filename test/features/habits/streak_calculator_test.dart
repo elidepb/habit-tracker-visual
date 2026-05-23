@@ -44,5 +44,23 @@ void main() {
 
       expect(StreakCalculator.bestStreak(dates), 3);
     });
+
+    test('bestAcrossHabits retorna la mejor racha entre hábitos', () {
+      final today = DateTime.now();
+      final yesterday = today.subtract(const Duration(days: 1));
+
+      final habitA = HabitModel.create(name: 'A').copyWith(
+        completedDates: [HabitModel.dateKey(today)],
+      );
+      final habitB = HabitModel.create(name: 'B').copyWith(
+        completedDates: [
+          HabitModel.dateKey(today),
+          HabitModel.dateKey(yesterday),
+        ],
+      );
+
+      expect(StreakCalculator.bestAcrossHabits([habitA, habitB]), 2);
+      expect(StreakCalculator.bestAcrossHabits([]), 0);
+    });
   });
 }

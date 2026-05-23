@@ -47,5 +47,35 @@ void main() {
       expect(next.day, 23);
       expect(next.hour, 9);
     });
+
+    test('nextOccurrence mantiene el mismo día si la hora es futura', () {
+      final from = DateTime(2026, 5, 22, 8, 0);
+      final next = NotificationScheduleRules.nextOccurrence(
+        hour: 9,
+        minute: 30,
+        from: from,
+      );
+
+      expect(next.day, 22);
+      expect(next.hour, 9);
+      expect(next.minute, 30);
+    });
+
+    test('shouldSchedule respeta toggle global de notificaciones', () {
+      final habit = HabitModel.create(
+        name: 'Leer',
+        reminderEnabled: true,
+        reminderHour: 9,
+        reminderMinute: 0,
+      );
+
+      expect(
+        NotificationScheduleRules.shouldSchedule(
+          habit: habit,
+          notificationsEnabled: false,
+        ),
+        isFalse,
+      );
+    });
   });
 }
