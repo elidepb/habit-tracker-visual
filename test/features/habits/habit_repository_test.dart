@@ -105,4 +105,9 @@ void main() {
     expect(stats.completed, 1);
     expect(stats.rate, 0.5);
   });
+
+  test('watchAll emite lista inicial vacía', () async {
+    final habits = await repository.watchAll().first;
+    expect(habits, isEmpty);
+  });
 }
