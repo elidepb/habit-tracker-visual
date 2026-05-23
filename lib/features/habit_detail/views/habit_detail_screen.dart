@@ -5,7 +5,9 @@ import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
+import 'package:habit_tracker_visual/features/habits/providers/daily_check_providers.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
+import 'package:habit_tracker_visual/shared/widgets/habit_check_button.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -64,8 +66,9 @@ class HabitDetailScreen extends ConsumerWidget {
       );
     }
 
+    final isCompleted = ref.watch(isCompletedTodayProvider(habitId));
+    final streak = ref.watch(habitStreakProvider(habitId));
     final completedCount = habit.completedDates.length;
-    final streakLabel = habit.isCompletedToday() ? 'Completado hoy' : 'Pendiente hoy';
 
     return Scaffold(
       appBar: AppBar(
@@ -80,6 +83,48 @@ class HabitDetailScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            AppCard(
+              variant: AppCardVariant.elevated,
+              child: Column(
+                children: [
+                  HabitCheckButton(
+                    habitId: habitId,
+                    color: habit.color,
+                    size: HabitCheckSize.lg,
+                    onToggled: (result) => showDailyCheckFeedback(context, result),
+                  ),
+                  const VGap.lg(),
+                  AppText.subtitle(
+                    isCompleted ? 'Completado hoy' : 'Marcar como completado',
+                  ),
+                  const VGap.xs(),
+                  AppText.caption(
+                    isCompleted
+                        ? '¡Buen trabajo! Vuelve mañana para mantener la racha.'
+                        : 'Toca el círculo para registrar el check de hoy.',
+                  ),
+                  if (streak > 0) ...[
+                    const VGap.md(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          LucideIcons.flame,
+                          color: AppColors.accent,
+                          size: 16,
+                        ),
+                        const HGap.xs(),
+                        AppText.caption(
+                          'Racha actual: $streak días',
+                          color: AppColors.accent,
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const VGap.lg(),
             AppCard(
               child: Row(
                 children: [
@@ -114,19 +159,29 @@ class HabitDetailScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppText.subtitle('Resumen'),
+                  const AppText.subtitle('Resumen'),
                   const VGap.md(),
-                  _DetailRow(label: 'Estado hoy', value: streakLabel),
+                  _DetailRow(
+                    label: 'Estado hoy',
+                    value: isCompleted ? 'Completado' : 'Pendiente',
+                  ),
                   const VGap.sm(),
                   _DetailRow(
                     label: 'Días registrados',
                     value: '$completedCount',
                   ),
+                  if (streak > 0) ...[
+                    const VGap.sm(),
+                    _DetailRow(label: 'Racha actual', value: '$streak días'),
+                  ],
                   if (habit.reminderEnabled) ...[
                     const VGap.sm(),
                     _DetailRow(
                       label: 'Recordatorio',
-                      value: _formatReminder(habit.reminderHour, habit.reminderMinute),
+                      value: _formatReminder(
+                        habit.reminderHour,
+                        habit.reminderMinute,
+                      ),
                     ),
                   ],
                 ],
