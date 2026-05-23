@@ -51,4 +51,11 @@ abstract final class StreakCalculator {
       int.parse(parts[2]),
     );
   }
+
+  static int bestAcrossHabits(List<HabitModel> habits) {
+    if (habits.isEmpty) return 0;
+    return habits
+        .map((h) => currentStreak(h.completedDates))
+        .reduce((a, b) => a > b ? a : b);
+  }
 }

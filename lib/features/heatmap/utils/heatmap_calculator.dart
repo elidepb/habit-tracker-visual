@@ -60,12 +60,20 @@ abstract final class HeatmapCalculator {
       cursor = cursor.add(const Duration(days: 1));
     }
 
+    var activeDays = 0;
+    for (final row in grid) {
+      for (final level in row) {
+        if (level > 0) activeDays++;
+      }
+    }
+
     return HeatmapData(
       grid: grid,
       weeks: weeksCount,
       startDate: alignedStart,
       endDate: endDate,
       totalHabits: totalHabits,
+      totalActiveDays: activeDays,
     );
   }
 

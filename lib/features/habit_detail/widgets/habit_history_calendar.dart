@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/core/utils/date_formatters.dart';
 import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/daily_check_providers.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
@@ -28,13 +29,6 @@ class HabitHistoryCalendar extends ConsumerStatefulWidget {
 
 class _HabitHistoryCalendarState extends ConsumerState<HabitHistoryCalendar> {
   late DateTime _visibleMonth;
-
-  static const _monthNames = [
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-  ];
-
-  static const _weekdayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
   @override
   void initState() {
@@ -102,7 +96,7 @@ class _HabitHistoryCalendarState extends ConsumerState<HabitHistoryCalendar> {
                 onPressed: () => _changeMonth(-1),
               ),
               AppText.subtitle(
-                '${_monthNames[_visibleMonth.month - 1]} ${_visibleMonth.year}',
+                '${DateFormatters.calendarMonthNames[_visibleMonth.month - 1]} ${_visibleMonth.year}',
               ),
               IconButton(
                 icon: const Icon(LucideIcons.chevronRight),
@@ -112,7 +106,7 @@ class _HabitHistoryCalendarState extends ConsumerState<HabitHistoryCalendar> {
           ),
           const VGap.md(),
           Row(
-            children: _weekdayLabels
+            children: DateFormatters.calendarWeekdayLabels
                 .map(
                   (label) => Expanded(
                     child: Center(

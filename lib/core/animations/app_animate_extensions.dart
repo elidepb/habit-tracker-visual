@@ -24,21 +24,4 @@ extension AppAnimateX on Widget {
       duration: AppDurations.normal,
     );
   }
-
-  Widget successPulse() {
-    return animate()
-        .scale(
-          begin: const Offset(1, 1),
-          end: const Offset(1.08, 1.08),
-          duration: AppDurations.fast,
-          curve: Curves.easeOut,
-        )
-        .then()
-        .scale(
-          begin: const Offset(1.08, 1.08),
-          end: const Offset(1, 1),
-          duration: AppDurations.fast,
-          curve: Curves.easeIn,
-        );
-  }
 }

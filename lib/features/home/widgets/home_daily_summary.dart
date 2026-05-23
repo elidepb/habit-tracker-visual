@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/core/utils/date_formatters.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 
 class HomeDailySummary extends StatelessWidget {
@@ -32,23 +33,10 @@ class HomeDailySummary extends StatelessWidget {
     if (rate >= 0.5) {
       return 'Vas por buen camino. Te faltan ${total - completed} por completar hoy.';
     }
-  if (completed == 0) {
+    if (completed == 0) {
       return 'Aún no has completado hábitos hoy. ¡Da el primer paso!';
     }
     return 'Cada check cuenta. Sigue avanzando con tus hábitos.';
-  }
-
-  String _formattedDate() {
-    const weekdays = [
-      'Lunes', 'Martes', 'Miércoles', 'Jueves',
-      'Viernes', 'Sábado', 'Domingo',
-    ];
-    const months = [
-      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
-    ];
-    final now = DateTime.now();
-    return '${weekdays[now.weekday - 1]}, ${now.day} de ${months[now.month - 1]}';
   }
 
   @override
@@ -58,7 +46,7 @@ class HomeDailySummary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText.caption(_formattedDate()),
+          AppText.caption(DateFormatters.displayDate(DateTime.now())),
           const VGap.sm(),
           AppText.h1(_greeting()),
           const VGap.md(),

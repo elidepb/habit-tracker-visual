@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/core/utils/date_formatters.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/app_text.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -19,12 +20,7 @@ class HabitReminderSection extends StatelessWidget {
   final ValueChanged<bool> onEnabledChanged;
   final ValueChanged<TimeOfDay> onTimeSelected;
 
-  String _formatTime(TimeOfDay? value) {
-    if (value == null) return 'Seleccionar hora';
-    final hour = value.hour.toString().padLeft(2, '0');
-    final minute = value.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
+  String _formatTime(TimeOfDay? value) => DateFormatters.timeOfDay(value);
 
   Future<void> _pickTime(BuildContext context) async {
     final picked = await showTimePicker(

@@ -63,12 +63,11 @@ final dailyCheckProvider =
     NotifierProvider<DailyCheckNotifier, Set<String>>(DailyCheckNotifier.new);
 
 final isCompletedTodayProvider = Provider.family<bool, String>((ref, habitId) {
-  ref.watch(habitsStreamProvider);
-  return ref.watch(dailyCheckServiceProvider).isCompletedToday(habitId);
+  return ref.watch(habitByIdProvider(habitId))?.isCompletedToday() ?? false;
 });
 
 final habitStreakProvider = Provider.family<int, String>((ref, habitId) {
-  ref.watch(habitsStreamProvider);
-  final dates = ref.watch(dailyCheckServiceProvider).completedDatesFor(habitId);
-  return StreakCalculator.currentStreak(dates);
+  final habit = ref.watch(habitByIdProvider(habitId));
+  if (habit == null) return 0;
+  return StreakCalculator.currentStreak(habit.completedDates);
 });
