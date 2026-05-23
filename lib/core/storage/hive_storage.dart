@@ -4,6 +4,11 @@ import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 
 abstract final class HiveBoxes {
   static const String habits = 'habits';
+  static const String settings = 'settings';
+}
+
+abstract final class SettingsKeys {
+  static const String notificationsEnabled = 'notifications_enabled';
 }
 
 abstract final class HiveStorage {
@@ -19,6 +24,7 @@ abstract final class HiveStorage {
     }
 
     await Hive.openBox<HabitModel>(HiveBoxes.habits);
+    await Hive.openBox(HiveBoxes.settings);
     _initialized = true;
   }
 
@@ -30,6 +36,7 @@ abstract final class HiveStorage {
     }
 
     await Hive.openBox<HabitModel>(HiveBoxes.habits);
+    await Hive.openBox(HiveBoxes.settings);
   }
 
   static Future<void> close() async {
