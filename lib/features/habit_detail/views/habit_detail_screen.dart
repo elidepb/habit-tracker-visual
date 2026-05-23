@@ -4,12 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
-import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
-import 'package:habit_tracker_visual/features/habits/providers/daily_check_providers.dart';
+import 'package:habit_tracker_visual/features/habit_detail/providers/habit_detail_providers.dart';
+import 'package:habit_tracker_visual/features/habit_detail/widgets/habit_detail_header.dart';
+import 'package:habit_tracker_visual/features/habit_detail/widgets/habit_history_calendar.dart';
+import 'package:habit_tracker_visual/features/habit_detail/widgets/habit_stats_section.dart';
 import 'package:habit_tracker_visual/features/heatmap/providers/heatmap_providers.dart';
 import 'package:habit_tracker_visual/features/heatmap/widgets/contribution_heatmap.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
-import 'package:habit_tracker_visual/shared/widgets/habit_check_button.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -52,6 +53,11 @@ class HabitDetailScreen extends ConsumerWidget {
     context.pop();
   }
 
+  static String _formatReminder(int? hour, int? minute) {
+    if (hour == null || minute == null) return '—';
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final habit = ref.watch(habitByIdProvider(habitId));
@@ -68,9 +74,7 @@ class HabitDetailScreen extends ConsumerWidget {
       );
     }
 
-    final isCompleted = ref.watch(isCompletedTodayProvider(habitId));
-    final streak = ref.watch(habitStreakProvider(habitId));
-    final completedCount = habit.completedDates.length;
+    final stats = ref.watch(habitStatisticsProvider(habitId));
     final heatmap = ref.watch(habitHeatmapProvider(habitId));
 
     return Scaffold(
@@ -80,174 +84,88 @@ class HabitDetailScreen extends ConsumerWidget {
           icon: const Icon(LucideIcons.arrowLeft),
           onPressed: () => context.pop(),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.pencil),
+            tooltip: 'Editar',
+            onPressed: () => context.push(Routes.editHabitPath(habitId)),
+          ),
+        ],
       ),
-      body: Padding(
+      body: ListView(
         padding: AppSpacing.screenPadding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppCard(
-              variant: AppCardVariant.elevated,
-              child: Column(
-                children: [
-                  HabitCheckButton(
-                    habitId: habitId,
-                    color: habit.color,
-                    size: HabitCheckSize.lg,
-                    onToggled: (result) => showDailyCheckFeedback(context, result),
-                  ),
-                  const VGap.lg(),
-                  AppText.subtitle(
-                    isCompleted ? 'Completado hoy' : 'Marcar como completado',
-                  ),
-                  const VGap.xs(),
-                  AppText.caption(
-                    isCompleted
-                        ? '¡Buen trabajo! Vuelve mañana para mantener la racha.'
-                        : 'Toca el círculo para registrar el check de hoy.',
-                  ),
-                  if (streak > 0) ...[
-                    const VGap.md(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          LucideIcons.flame,
-                          color: AppColors.accent,
-                          size: 16,
-                        ),
-                        const HGap.xs(),
-                        AppText.caption(
-                          'Racha actual: $streak días',
-                          color: AppColors.accent,
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
+        children: [
+          HabitDetailHeader(habit: habit),
+          const VGap.xl(),
+          HabitStatsSection(stats: stats, accentColor: habit.color),
+          const VGap.xl(),
+          const AppText.subtitle('Actividad anual'),
+          const VGap.md(),
+          AppCard(
+            child: ContributionHeatmap(
+              data: heatmap,
+              cellSize: 14,
+              intensityLabel: (level) =>
+                  level > 0 ? 'Completado' : 'Sin completar',
             ),
-            const VGap.lg(),
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const AppText.subtitle('Historial anual'),
-                  const VGap.md(),
-                  ContributionHeatmap(
-                    data: heatmap,
-                    showMonthLabels: true,
-                    intensityLabel: (level) =>
-                        level > 0 ? 'Completado' : 'Sin completar',
-                  ),
-                ],
-              ),
-            ),
+          ),
+          const VGap.xl(),
+          const AppText.subtitle('Historial'),
+          const VGap.md(),
+          HabitHistoryCalendar(
+            habitId: habitId,
+            accentColor: habit.color,
+            createdAt: habit.createdAt,
+          ),
+          if (habit.reminderEnabled) ...[
             const VGap.lg(),
             AppCard(
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    decoration: BoxDecoration(
-                      color: habit.color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      HabitIcons.fromName(habit.iconName),
-                      color: habit.color,
-                      size: 28,
-                    ),
+                  const Icon(
+                    LucideIcons.bell,
+                    color: AppColors.textSecondary,
+                    size: 18,
                   ),
-                  const HGap.lg(),
+                  const HGap.md(),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AppText.h2(habit.name),
+                        const AppText.subtitle('Recordatorio'),
                         const VGap.xs(),
-                        AppText.caption(habit.frequency.label),
+                        AppText.caption(
+                          _formatReminder(
+                            habit.reminderHour,
+                            habit.reminderMinute,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            const VGap.lg(),
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const AppText.subtitle('Resumen'),
-                  const VGap.md(),
-                  _DetailRow(
-                    label: 'Estado hoy',
-                    value: isCompleted ? 'Completado' : 'Pendiente',
-                  ),
-                  const VGap.sm(),
-                  _DetailRow(
-                    label: 'Días registrados',
-                    value: '$completedCount',
-                  ),
-                  if (streak > 0) ...[
-                    const VGap.sm(),
-                    _DetailRow(label: 'Racha actual', value: '$streak días'),
-                  ],
-                  if (habit.reminderEnabled) ...[
-                    const VGap.sm(),
-                    _DetailRow(
-                      label: 'Recordatorio',
-                      value: _formatReminder(
-                        habit.reminderHour,
-                        habit.reminderMinute,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const Spacer(),
-            AppButton(
-              label: 'Editar',
-              variant: AppButtonVariant.secondary,
-              icon: LucideIcons.pencil,
-              fullWidth: true,
-              onPressed: () => context.push(Routes.editHabitPath(habitId)),
-            ),
-            const VGap.md(),
-            AppButton(
-              label: 'Eliminar',
-              variant: AppButtonVariant.danger,
-              icon: LucideIcons.trash2,
-              fullWidth: true,
-              onPressed: () => _confirmDelete(context, ref),
-            ),
           ],
-        ),
+          const VGap.xxxl(),
+          AppButton(
+            label: 'Editar hábito',
+            variant: AppButtonVariant.secondary,
+            icon: LucideIcons.pencil,
+            fullWidth: true,
+            onPressed: () => context.push(Routes.editHabitPath(habitId)),
+          ),
+          const VGap.md(),
+          AppButton(
+            label: 'Eliminar hábito',
+            variant: AppButtonVariant.danger,
+            icon: LucideIcons.trash2,
+            fullWidth: true,
+            onPressed: () => _confirmDelete(context, ref),
+          ),
+          const VGap.xl(),
+        ],
       ),
-    );
-  }
-
-  static String _formatReminder(int? hour, int? minute) {
-    if (hour == null || minute == null) return '—';
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        AppText.body(label, color: AppColors.textSecondary),
-        AppText.body(value),
-      ],
     );
   }
 }

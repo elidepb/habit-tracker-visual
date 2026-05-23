@@ -7,8 +7,30 @@ class DailyCheckService {
 
   final HabitRepository _repository;
 
-  Future<DailyCheckResult?> toggleToday(String habitId, {DateTime? date}) async {
-    final targetDate = date ?? DateTime.now();
+  Future<DailyCheckResult?> toggleForDate(String habitId, DateTime date) async {
+    final targetDate = DateTime(date.year, date.month, date.day);
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    if (targetDate.isAfter(todayDate)) return null;
+
+    final habit = _repository.getById(habitId);
+    if (habit == null) return null;
+
+    final created = DateTime(
+      habit.createdAt.year,
+      habit.createdAt.month,
+      habit.createdAt.day,
+    );
+    if (targetDate.isBefore(created)) return null;
+
+    return _toggle(habitId, targetDate);
+  }
+
+  Future<DailyCheckResult?> toggleToday(String habitId) async {
+    return toggleForDate(habitId, DateTime.now());
+  }
+
+  Future<DailyCheckResult?> _toggle(String habitId, DateTime targetDate) async {
     final habit = _repository.getById(habitId);
     if (habit == null) return null;
 

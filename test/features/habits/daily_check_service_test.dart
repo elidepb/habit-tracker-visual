@@ -51,6 +51,16 @@ void main() {
     expect(result, isNull);
   });
 
+  test('toggleForDate rechaza fechas futuras', () async {
+    final habit = HabitModel.create(name: 'Correr');
+    await repository.save(habit);
+
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    final result = await service.toggleForDate(habit.id, tomorrow);
+
+    expect(result, isNull);
+  });
+
   test('toggleToday persiste entre lecturas', () async {
     final habit = HabitModel.create(name: 'Correr');
     await repository.save(habit);
