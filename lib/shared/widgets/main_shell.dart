@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/shared/widgets/animated_shell_body.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -17,6 +18,8 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       body: AnimatedShellBody(
         index: navigationShell.currentIndex,
@@ -25,21 +28,21 @@ class MainShell extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: _onTap,
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(LucideIcons.home),
             selectedIcon: Icon(LucideIcons.home),
-            label: 'Inicio',
+            label: l10n.navHome,
           ),
           NavigationDestination(
             icon: Icon(LucideIcons.barChart2),
             selectedIcon: Icon(LucideIcons.barChart2),
-            label: 'Estadísticas',
+            label: l10n.navStatistics,
           ),
           NavigationDestination(
             icon: Icon(LucideIcons.settings),
             selectedIcon: Icon(LucideIcons.settings),
-            label: 'Ajustes',
+            label: l10n.navSettings,
           ),
         ],
       ),

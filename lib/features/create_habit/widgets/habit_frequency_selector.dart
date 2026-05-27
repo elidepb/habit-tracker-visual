@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_model_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/habits/models/habit_frequency.dart';
@@ -16,17 +18,19 @@ class HabitFrequencySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.subtitle('Frecuencia', color: AppColors.textPrimary),
+        AppText.subtitle(l10n.formFrequencyLabel, color: AppColors.textPrimary),
         const VGap.md(),
         SegmentedButton<HabitFrequency>(
           segments: HabitFrequency.values
               .map(
                 (f) => ButtonSegment(
                   value: f,
-                  label: Text(f.label),
+                  label: Text(f.localizedLabel(l10n)),
                 ),
               )
               .toList(),

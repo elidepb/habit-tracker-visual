@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:habit_tracker_visual/core/theme/app_colors.dart';
+import 'package:habit_tracker_visual/core/theme/app_palette.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_shadows.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
@@ -24,15 +24,13 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.appPalette;
+
     final decoration = BoxDecoration(
-      color: switch (variant) {
-        AppCardVariant.filled => AppColors.surface,
-        AppCardVariant.outlined => AppColors.surface,
-        AppCardVariant.elevated => AppColors.surface,
-      },
+      color: palette.surface,
       borderRadius: BorderRadius.circular(AppRadius.card),
       border: variant == AppCardVariant.outlined
-          ? Border.all(color: AppColors.border)
+          ? Border.all(color: palette.border)
           : null,
       boxShadow: variant == AppCardVariant.elevated ? AppShadows.card : null,
     );

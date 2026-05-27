@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
@@ -20,7 +21,8 @@ class HabitReminderSection extends StatelessWidget {
   final ValueChanged<bool> onEnabledChanged;
   final ValueChanged<TimeOfDay> onTimeSelected;
 
-  String _formatTime(TimeOfDay? value) => DateFormatters.timeOfDay(value);
+  String _formatTime(TimeOfDay? value, BuildContext context) =>
+      DateFormatters.timeOfDay(value, context.l10n);
 
   Future<void> _pickTime(BuildContext context) async {
     final picked = await showTimePicker(
@@ -43,16 +45,18 @@ class HabitReminderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
-          title: const AppText.subtitle(
-            'Recordatorio',
+          title: AppText.subtitle(
+            l10n.reminderTitle,
             color: AppColors.textPrimary,
           ),
-          subtitle: const AppText.caption('Recibe un aviso diario'),
+          subtitle: AppText.caption(l10n.reminderSubtitle),
           value: enabled,
           activeColor: AppColors.primary,
           onChanged: onEnabledChanged,
@@ -78,7 +82,7 @@ class HabitReminderSection extends StatelessWidget {
                     size: 20,
                   ),
                   const HGap.md(),
-                  AppText.body(_formatTime(time)),
+                  AppText.body(_formatTime(time, context)),
                   const Spacer(),
                   const Icon(
                     LucideIcons.chevronDown,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
+import 'package:habit_tracker_visual/core/theme/app_palette.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/statistics/models/global_statistics.dart';
@@ -8,13 +10,17 @@ import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 class WeeklyActivityChart extends StatelessWidget {
   const WeeklyActivityChart({super.key, required this.weeklyActivity});
 
+  static const _chartHeight = 160.0;
+
   final List<WeeklyActivityPoint> weeklyActivity;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     if (weeklyActivity.isEmpty) {
-      return const AppText.caption(
-        'Sin actividad esta semana',
+      return AppText.caption(
+        l10n.weeklyChartEmpty,
         color: AppColors.textSecondary,
       );
     }
@@ -27,23 +33,23 @@ class WeeklyActivityChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppText.subtitle('Actividad semanal'),
+          AppText.subtitle(l10n.weeklyChartTitle),
           const VGap.xs(),
-          const AppText.caption(
-            'Checks completados por día (últimos 7 días)',
+          AppText.caption(
+            l10n.weeklyChartSubtitle,
             color: AppColors.textSecondary,
           ),
           const VGap.lg(),
           SizedBox(
-            height: 160,
+            height: _chartHeight,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: weeklyActivity.map((point) {
                 final heightFactor =
                     maxCount > 0 ? point.completedCount / maxCount : 0.0;
                 final barColor = Color.lerp(
-                  AppColors.heatmapLevels[1],
-                  AppColors.heatmapLevels[4],
+                  context.appPalette.heatmapLevels[1],
+                  context.appPalette.heatmapLevels[4],
                   point.rate,
                 )!;
 
@@ -51,18 +57,26 @@ class WeeklyActivityChart extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         if (point.completedCount > 0)
                           AppText.caption('${point.completedCount}'),
-                        const VGap.xs(),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          height: 120 * heightFactor + (point.completedCount > 0 ? 8 : 0),
-                          decoration: BoxDecoration(
-                            color: barColor,
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(AppRadius.input),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: FractionallySizedBox(
+                              heightFactor: point.completedCount > 0
+                                  ? heightFactor.clamp(0.08, 1.0)
+                                  : 0,
+                              widthFactor: 1,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                decoration: BoxDecoration(
+                                  color: barColor,
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(AppRadius.input),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),

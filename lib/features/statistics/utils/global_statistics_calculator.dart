@@ -4,9 +4,10 @@ import 'package:habit_tracker_visual/features/habit_detail/utils/habit_statistic
 import 'package:habit_tracker_visual/features/statistics/models/global_statistics.dart';
 
 abstract final class GlobalStatisticsCalculator {
-  static const _weekdayLabels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-
-  static GlobalStatistics fromHabits(List<HabitModel> habits) {
+  static GlobalStatistics fromHabits(
+    List<HabitModel> habits, {
+    required List<String> weekdayLabels,
+  }) {
     if (habits.isEmpty) return const GlobalStatistics.empty();
 
     final today = DateTime.now();
@@ -17,7 +18,7 @@ abstract final class GlobalStatisticsCalculator {
       uniqueActiveDays.addAll(habit.completedDates);
     }
 
-    final weeklyActivity = _buildWeeklyActivity(habits, todayDate);
+    final weeklyActivity = _buildWeeklyActivity(habits, todayDate, weekdayLabels);
     final weeklyTotal = weeklyActivity.fold<int>(
       0,
       (sum, point) => sum + point.completedCount,
@@ -61,6 +62,7 @@ abstract final class GlobalStatisticsCalculator {
   static List<WeeklyActivityPoint> _buildWeeklyActivity(
     List<HabitModel> habits,
     DateTime todayDate,
+    List<String> weekdayLabels,
   ) {
     return List.generate(7, (index) {
       final day = todayDate.subtract(Duration(days: 6 - index));
@@ -83,7 +85,7 @@ abstract final class GlobalStatisticsCalculator {
       }
 
       return WeeklyActivityPoint(
-        label: _weekdayLabels[day.weekday - 1],
+        label: weekdayLabels[day.weekday - 1],
         completedCount: completed,
         totalPossible: possible,
       );

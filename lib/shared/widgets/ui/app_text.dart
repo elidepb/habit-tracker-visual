@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:habit_tracker_visual/core/theme/app_colors.dart';
+import 'package:habit_tracker_visual/core/theme/app_palette.dart';
 import 'package:habit_tracker_visual/core/theme/app_text_styles.dart';
 
 class AppText extends StatelessWidget {
@@ -84,7 +84,7 @@ class AppText extends StatelessWidget {
       style = style.copyWith(fontWeight: FontWeight.w600);
     }
     if (variant == AppTextVariant.caption && color == null) {
-      style = style.copyWith(color: AppColors.textSecondary);
+      style = style.copyWith(color: context.appPalette.textSecondary);
     }
 
     return Text(

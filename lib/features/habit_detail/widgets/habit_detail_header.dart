@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_model_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
@@ -15,6 +17,7 @@ class HabitDetailHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final isCompleted = ref.watch(isCompletedTodayProvider(habit.id));
     final streak = ref.watch(habitStreakProvider(habit.id));
 
@@ -43,7 +46,7 @@ class HabitDetailHeader extends ConsumerWidget {
                   children: [
                     AppText.h2(habit.name),
                     const VGap.xs(),
-                    AppText.caption(habit.frequency.label),
+                    AppText.caption(habit.frequency.localizedLabel(l10n)),
                   ],
                 ),
               ),
@@ -57,12 +60,14 @@ class HabitDetailHeader extends ConsumerWidget {
           ),
           const VGap.lg(),
           AppText.subtitle(
-            isCompleted ? 'Completado hoy' : 'Pendiente hoy',
+            isCompleted
+                ? l10n.habitStatusCompletedToday
+                : l10n.habitStatusPendingToday,
           ),
           if (streak > 0) ...[
             const VGap.sm(),
             AppText.caption(
-              'Racha actual: $streak días',
+              l10n.habitCurrentStreak(streak),
               color: habit.color,
             ),
           ],

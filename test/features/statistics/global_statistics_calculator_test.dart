@@ -1,12 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:habit_tracker_visual/core/utils/date_formatters.dart';
 import 'package:habit_tracker_visual/features/habits/models/habit_frequency.dart';
 import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/statistics/utils/global_statistics_calculator.dart';
 
+import '../../helpers/test_helpers.dart';
+
 void main() {
+  final weekdayLabels = DateFormatters.calendarWeekdayLabels(testL10n());
+
   group('GlobalStatisticsCalculator', () {
     test('retorna vacío sin hábitos', () {
-      final stats = GlobalStatisticsCalculator.fromHabits([]);
+      final stats = GlobalStatisticsCalculator.fromHabits(
+        [],
+        weekdayLabels: weekdayLabels,
+      );
       expect(stats.totalHabits, 0);
       expect(stats.rankings, isEmpty);
     });
@@ -37,7 +45,10 @@ void main() {
         ],
       );
 
-      final stats = GlobalStatisticsCalculator.fromHabits([habitA, habitB]);
+      final stats = GlobalStatisticsCalculator.fromHabits(
+        [habitA, habitB],
+        weekdayLabels: weekdayLabels,
+      );
 
       expect(stats.totalHabits, 2);
       expect(stats.activeDays, greaterThan(0));

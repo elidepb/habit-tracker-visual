@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/core/utils/date_formatters.dart';
+import 'package:habit_tracker_visual/l10n/app_localizations.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 
 class HomeDailySummary extends StatelessWidget {
@@ -16,41 +18,43 @@ class HomeDailySummary extends StatelessWidget {
   final int total;
   final double rate;
 
-  String _greeting() {
+  String _greeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Buenos días';
-    if (hour < 19) return 'Buenas tardes';
-    return 'Buenas noches';
+    if (hour < 12) return l10n.greetingMorning;
+    if (hour < 19) return l10n.greetingAfternoon;
+    return l10n.greetingEvening;
   }
 
-  String _message() {
+  String _message(AppLocalizations l10n) {
     if (total == 0) {
-      return 'Empieza creando tu primer hábito y construye consistencia día a día.';
+      return l10n.dailySummaryNoHabits;
     }
     if (rate >= 1) {
-      return '¡Excelente! Completaste todos tus hábitos hoy. Sigue así.';
+      return l10n.dailySummaryAllComplete;
     }
     if (rate >= 0.5) {
-      return 'Vas por buen camino. Te faltan ${total - completed} por completar hoy.';
+      return l10n.dailySummaryPartial(total - completed);
     }
     if (completed == 0) {
-      return 'Aún no has completado hábitos hoy. ¡Da el primer paso!';
+      return l10n.dailySummaryNoneComplete;
     }
-    return 'Cada check cuenta. Sigue avanzando con tus hábitos.';
+    return l10n.dailySummaryKeepGoing;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AppCard(
       variant: AppCardVariant.elevated,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText.caption(DateFormatters.displayDate(DateTime.now())),
+          AppText.caption(DateFormatters.displayDate(DateTime.now(), l10n)),
           const VGap.sm(),
-          AppText.h1(_greeting()),
+          AppText.h1(_greeting(l10n)),
           const VGap.md(),
-          AppText.body(_message(), color: AppColors.textSecondary),
+          AppText.body(_message(l10n), color: AppColors.textSecondary),
           if (total > 0) ...[
             const VGap.lg(),
             ClipRRect(

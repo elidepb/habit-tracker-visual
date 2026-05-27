@@ -6,6 +6,8 @@ import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_model_extensions.dart';
 import 'package:habit_tracker_visual/features/habits/constants/habit_icons.dart';
 import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/daily_check_providers.dart';
@@ -25,6 +27,8 @@ class HabitTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isCompleted = ref.watch(isCompletedTodayProvider(habit.id));
     final streak = ref.watch(habitStreakProvider(habit.id));
+
+    final l10n = context.l10n;
 
     return Dismissible(
       key: ValueKey(habit.id),
@@ -80,7 +84,7 @@ class HabitTile extends ConsumerWidget {
                   if (streak > 0)
                     Row(
                       children: [
-                        AppText.caption(habit.frequency.label),
+                        AppText.caption(habit.frequency.localizedLabel(l10n)),
                         const HGap.xs(),
                         const Icon(
                           LucideIcons.flame,
@@ -92,7 +96,7 @@ class HabitTile extends ConsumerWidget {
                       ],
                     )
                   else
-                    AppText.caption(habit.frequency.label),
+                    AppText.caption(habit.frequency.localizedLabel(l10n)),
                 ],
               ),
             ),

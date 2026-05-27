@@ -1,0 +1,251 @@
+{
+  "@@locale": "en",
+  "appName": "Habit Tracker",
+  "appNameSuffix": "Visual",
+  "navHome": "Home",
+  "navStatistics": "Statistics",
+  "navSettings": "Settings",
+  "homeTitle": "Habits",
+  "homeStatsTooltip": "Statistics",
+  "homeNewHabitTooltip": "New habit",
+  "homeLoadError": "Could not load habits",
+  "homeYourHabits": "Your habits",
+  "homeEmptyTitle": "No habits yet",
+  "homeEmptyBody": "Create your first habit to start tracking your progress.",
+  "homeEmptyCreateButton": "Create habit",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "dailySummaryNoHabits": "Start by creating your first habit and build consistency day by day.",
+  "dailySummaryAllComplete": "Excellent! You completed all your habits today. Keep it up.",
+  "dailySummaryPartial": "You're on track. {remaining} left to complete today.",
+  "@dailySummaryPartial": {
+    "placeholders": {
+      "remaining": {"type": "int"}
+    }
+  },
+  "dailySummaryNoneComplete": "You haven't completed any habits today yet. Take the first step!",
+  "dailySummaryKeepGoing": "Every check counts. Keep moving forward with your habits.",
+  "dateDisplay": "{weekday}, {month} {day}",
+  "@dateDisplay": {
+    "placeholders": {
+      "weekday": {"type": "String"},
+      "day": {"type": "int"},
+      "month": {"type": "String"}
+    }
+  },
+  "statCompleted": "Completed",
+  "statProgress": "Progress",
+  "statBestStreak": "Best streak",
+  "statConsistency": "Consistency",
+  "statActiveDays": "Active days",
+  "statWeeklyAverage": "Weekly average",
+  "statCompletion": "Completion",
+  "statCurrentStreak": "Current streak",
+  "unitDays": "days",
+  "unitPercent": "%",
+  "heatmapIntensityNone": "No activity",
+  "heatmapIntensityCompleted": "Completed",
+  "heatmapIntensityLow": "Low activity",
+  "heatmapIntensityMedium": "Medium activity",
+  "heatmapIntensityHigh": "High activity",
+  "heatmapIntensityAll": "All completed",
+  "heatmapIntensityDefault": "Activity",
+  "heatmapAnnualTitle": "Annual activity",
+  "heatmapActiveDaysThisYear": "{count} active days this year",
+  "@heatmapActiveDaysThisYear": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "heatmapLegendLess": "Less",
+  "heatmapLegendMore": "More",
+  "heatmapTooltipNoActivity": "{date} — No activity",
+  "@heatmapTooltipNoActivity": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "heatmapTooltipLevel": "{date} — Level {level}",
+  "@heatmapTooltipLevel": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "level": {"type": "int"}
+    }
+  },
+  "heatmapTooltipWithIntensity": "{date} — {intensity}",
+  "@heatmapTooltipWithIntensity": {
+    "placeholders": {
+      "date": {"type": "String"},
+      "intensity": {"type": "String"}
+    }
+  },
+  "statisticsTitle": "Statistics",
+  "statisticsEmptyTitle": "No data yet",
+  "statisticsEmptyBody": "Create habits and log checks to see your global statistics.",
+  "statsOverviewTitle": "Overview",
+  "weeklyChartEmpty": "No activity this week",
+  "weeklyChartTitle": "Weekly activity",
+  "weeklyChartSubtitle": "Checks completed per day (last 7 days)",
+  "habitRankingEmpty": "Create habits to see the ranking",
+  "habitRankingTitle": "Habit ranking",
+  "habitRankingSubtitle": "Sorted by completion rate",
+  "habitRankingCompletion": "{percent}% completion",
+  "@habitRankingCompletion": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "habitDetailEditTooltip": "Edit",
+  "habitDetailAnnualActivity": "Annual activity",
+  "habitDetailHistory": "History",
+  "habitDetailReminder": "Reminder",
+  "habitDetailEditButton": "Edit habit",
+  "habitDetailDeleteButton": "Delete habit",
+  "heatmapDayCompleted": "Completed",
+  "heatmapDayNotCompleted": "Not completed",
+  "habitStatusCompletedToday": "Completed today",
+  "habitStatusPendingToday": "Pending today",
+  "habitCurrentStreak": "Current streak: {streak} days",
+  "@habitCurrentStreak": {
+    "placeholders": {
+      "streak": {"type": "int"}
+    }
+  },
+  "habitStatsTitle": "Statistics",
+  "calendarTapHint": "Tap a day to mark or unmark as completed.",
+  "formReminderTimeRequired": "Select a time for the reminder",
+  "formEditTitle": "Edit habit",
+  "formCreateTitle": "New habit",
+  "formNameLabel": "Habit name",
+  "formNameHint": "e.g. Read 30 minutes",
+  "formSaveChanges": "Save changes",
+  "formCreateButton": "Create habit",
+  "formColorLabel": "Color",
+  "formIconLabel": "Icon",
+  "formFrequencyLabel": "Frequency",
+  "reminderTitle": "Reminder",
+  "reminderSubtitle": "Get a daily notification",
+  "timeSelectFallback": "Select time",
+  "timeEmptyFallback": "—",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "onboardingWelcomeTitle": "Welcome",
+  "onboardingWelcomeSubtitle": "Track your habits with a GitHub-inspired heatmap. Build consistency, one day at a time.",
+  "onboardingHeatmapTitle": "Visual heatmap",
+  "onboardingHeatmapDescription": "See your annual progress at a glance.",
+  "onboardingStreaksTitle": "Streaks",
+  "onboardingStreaksDescription": "Stay motivated with daily streaks.",
+  "onboardingStartButton": "Get started",
+  "deleteHabitTitle": "Delete habit",
+  "deleteHabitMessageNamed": "Delete \"{habitName}\"? This action cannot be undone.",
+  "@deleteHabitMessageNamed": {
+    "placeholders": {
+      "habitName": {"type": "String"}
+    }
+  },
+  "deleteHabitMessageGeneric": "This action cannot be undone. Do you want to delete this habit?",
+  "habitNotFound": "Habit not found",
+  "checkFeedbackStreak": "Done! {streak}-day streak",
+  "@checkFeedbackStreak": {
+    "placeholders": {
+      "streak": {"type": "int"}
+    }
+  },
+  "checkFeedbackCompleted": "Habit completed today!",
+  "frequencyDaily": "Daily",
+  "frequencyWeekly": "Weekly",
+  "frequencyCustom": "Custom",
+  "validationNameRequired": "Name is required",
+  "validationNameMaxLength": "Maximum {max} characters",
+  "@validationNameMaxLength": {
+    "placeholders": {
+      "max": {"type": "int"}
+    }
+  },
+  "notificationChannelName": "Habit reminders",
+  "notificationChannelDescription": "Daily reminders to complete your habits",
+  "notificationReminderTitle": "Habit reminder",
+  "notificationReminderBody": "Time to complete: {habitName}",
+  "@notificationReminderBody": {
+    "placeholders": {
+      "habitName": {"type": "String"}
+    }
+  },
+  "settingsTitle": "Settings",
+  "settingsAppearanceSection": "Appearance",
+  "settingsThemeTitle": "Theme",
+  "settingsThemeSubtitle": "Choose the app's color mode",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingsLanguageSection": "Language",
+  "settingsLanguageTitle": "Language",
+  "settingsLanguageSubtitle": "Choose the app language",
+  "languageSystem": "System",
+  "languageSpanish": "Español",
+  "languageEnglish": "English",
+  "settingsNotificationsSection": "Notifications",
+  "settingsRemindersTitle": "Reminders",
+  "settingsRemindersSubtitle": "Daily alerts based on each habit's time",
+  "settingsNotificationsUnsupported": "Notifications are not available on this platform.",
+  "settingsAllowNotifications": "Allow notifications",
+  "monthShortJan": "Jan",
+  "monthShortFeb": "Feb",
+  "monthShortMar": "Mar",
+  "monthShortApr": "Apr",
+  "monthShortMay": "May",
+  "monthShortJun": "Jun",
+  "monthShortJul": "Jul",
+  "monthShortAug": "Aug",
+  "monthShortSep": "Sep",
+  "monthShortOct": "Oct",
+  "monthShortNov": "Nov",
+  "monthShortDec": "Dec",
+  "monthLongJan": "January",
+  "monthLongFeb": "February",
+  "monthLongMar": "March",
+  "monthLongApr": "April",
+  "monthLongMay": "May",
+  "monthLongJun": "June",
+  "monthLongJul": "July",
+  "monthLongAug": "August",
+  "monthLongSep": "September",
+  "monthLongOct": "October",
+  "monthLongNov": "November",
+  "monthLongDec": "December",
+  "weekdayMonday": "Monday",
+  "weekdayTuesday": "Tuesday",
+  "weekdayWednesday": "Wednesday",
+  "weekdayThursday": "Thursday",
+  "weekdayFriday": "Friday",
+  "weekdaySaturday": "Saturday",
+  "weekdaySunday": "Sunday",
+  "weekdayLetterSun": "S",
+  "weekdayLetterMon": "M",
+  "weekdayLetterTue": "T",
+  "weekdayLetterWed": "W",
+  "weekdayLetterThu": "T",
+  "weekdayLetterFri": "F",
+  "weekdayLetterSat": "S",
+  "monthCalendarJan": "January",
+  "monthCalendarFeb": "February",
+  "monthCalendarMar": "March",
+  "monthCalendarApr": "April",
+  "monthCalendarMay": "May",
+  "monthCalendarJun": "June",
+  "monthCalendarJul": "July",
+  "monthCalendarAug": "August",
+  "monthCalendarSep": "September",
+  "monthCalendarOct": "October",
+  "monthCalendarNov": "November",
+  "monthCalendarDec": "December",
+  "iconActivity": "Activity",
+  "iconExercise": "Exercise",
+  "iconReading": "Reading",
+  "iconSleep": "Sleep",
+  "iconWater": "Water",
+  "iconMind": "Mind",
+  "iconHealth": "Health",
+  "iconTime": "Time"
+}

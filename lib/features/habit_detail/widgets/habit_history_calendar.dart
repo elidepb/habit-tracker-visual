@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
@@ -75,6 +76,7 @@ class _HabitHistoryCalendarState extends ConsumerState<HabitHistoryCalendar> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final habit = ref.watch(habitByIdProvider(widget.habitId));
     if (habit == null) return const SizedBox.shrink();
 
@@ -96,7 +98,7 @@ class _HabitHistoryCalendarState extends ConsumerState<HabitHistoryCalendar> {
                 onPressed: () => _changeMonth(-1),
               ),
               AppText.subtitle(
-                '${DateFormatters.calendarMonthNames[_visibleMonth.month - 1]} ${_visibleMonth.year}',
+                '${DateFormatters.calendarMonthNames(l10n)[_visibleMonth.month - 1]} ${_visibleMonth.year}',
               ),
               IconButton(
                 icon: const Icon(LucideIcons.chevronRight),
@@ -106,7 +108,7 @@ class _HabitHistoryCalendarState extends ConsumerState<HabitHistoryCalendar> {
           ),
           const VGap.md(),
           Row(
-            children: DateFormatters.calendarWeekdayLabels
+            children: DateFormatters.calendarWeekdayLabels(l10n)
                 .map(
                   (label) => Expanded(
                     child: Center(
@@ -157,8 +159,8 @@ class _HabitHistoryCalendarState extends ConsumerState<HabitHistoryCalendar> {
             },
           ),
           const VGap.md(),
-          const AppText.caption(
-            'Toca un día para marcar o desmarcar como completado.',
+          AppText.caption(
+            l10n.calendarTapHint,
             color: AppColors.textSecondary,
           ),
         ],

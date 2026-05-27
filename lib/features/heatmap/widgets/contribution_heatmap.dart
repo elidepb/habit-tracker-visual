@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:habit_tracker_visual/core/theme/app_colors.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
+import 'package:habit_tracker_visual/core/theme/app_palette.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/core/utils/date_formatters.dart';
 import 'package:habit_tracker_visual/features/heatmap/models/heatmap_data.dart';
 import 'package:habit_tracker_visual/features/heatmap/utils/heatmap_calculator.dart';
 import 'package:habit_tracker_visual/features/heatmap/widgets/heatmap_legend.dart';
+import 'package:habit_tracker_visual/l10n/app_localizations.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/app_text.dart';
 
-class ContributionHeatmap extends StatelessWidget {
+class ContributionHeatmap extends StatefulWidget {
   const ContributionHeatmap({
     super.key,
     required this.data,
@@ -24,11 +26,140 @@ class ContributionHeatmap extends StatelessWidget {
   final String Function(int level)? intensityLabel;
 
   @override
+  State<ContributionHeatmap> createState() => _ContributionHeatmapState();
+}
+
+class _ContributionHeatmapState extends State<ContributionHeatmap> {
+  static const _maxScrollRetries = 12;
+
+  late final ScrollController _scrollController;
+  var _scrollRetryCount = 0;
+  double _viewportWidth = 0;
+
+  double get _cellStride => widget.cellSize + widget.cellGap;
+
+  double get _gridWidth =>
+      widget.data.weeks * _cellStride - widget.cellGap;
+
+  double get _gridHeight =>
+      HeatmapCalculator.daysPerWeek * widget.cellSize +
+      (HeatmapCalculator.daysPerWeek - 1) * widget.cellGap;
+
+  int get _currentWeekColumn {
+    final today = DateTime.now();
+    return HeatmapCalculator.weekColumnFor(
+      widget.data.startDate,
+      DateTime(today.year, today.month, today.day),
+    ).clamp(0, widget.data.weeks - 1);
+  }
+
+  double _trailingScrollOffset(double viewportWidth) {
+    if (_gridWidth <= viewportWidth) return 0;
+
+    final trailingEdge = (_currentWeekColumn + 1) * _cellStride;
+    return trailingEdge - viewportWidth;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_viewportWidth > 0) _scrollToTrailingEdge(_viewportWidth);
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant ContributionHeatmap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.data.startDate != widget.data.startDate ||
+        oldWidget.data.weeks != widget.data.weeks ||
+        oldWidget.data.endDate != widget.data.endDate ||
+        oldWidget.cellSize != widget.cellSize ||
+        oldWidget.cellGap != widget.cellGap) {
+      _scrollRetryCount = 0;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_viewportWidth > 0) _scrollToTrailingEdge(_viewportWidth);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scheduleScrollRetry(double viewportWidth) {
+    if (_scrollRetryCount >= _maxScrollRetries || !mounted) return;
+    _scrollRetryCount++;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToTrailingEdge(viewportWidth);
+    });
+  }
+
+  void _scrollToTrailingEdge(double viewportWidth) {
+    if (!mounted) return;
+
+    if (_gridWidth <= viewportWidth) return;
+
+    if (!_scrollController.hasClients) {
+      _scheduleScrollRetry(viewportWidth);
+      return;
+    }
+
+    final position = _scrollController.position;
+    final maxOffset = position.maxScrollExtent;
+    final target = _trailingScrollOffset(viewportWidth);
+
+    if (maxOffset <= 0 && target > 0) {
+      _scheduleScrollRetry(viewportWidth);
+      return;
+    }
+
+    final clamped = target.clamp(0.0, maxOffset);
+    if ((position.pixels - clamped).abs() > 0.5) {
+      _scrollController.jumpTo(clamped);
+    }
+  }
+
+  Widget _buildGridContent() {
+    final l10n = context.l10n;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.showMonthLabels) ...[
+          _MonthLabels(
+            data: widget.data,
+            cellStride: _cellStride,
+            gridWidth: _gridWidth,
+            l10n: l10n,
+          ),
+          const VGap.sm(),
+        ],
+        _HeatmapGrid(
+          data: widget.data,
+          cellSize: widget.cellSize,
+          cellGap: widget.cellGap,
+          gridWidth: _gridWidth,
+          gridHeight: _gridHeight,
+          intensityLabel: widget.intensityLabel,
+          l10n: l10n,
+        ),
+      ],
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (data.isEmpty) {
-      return const AppText.caption(
-        'Sin datos de actividad',
-        color: AppColors.textSecondary,
+    final l10n = context.l10n;
+
+    if (widget.data.isEmpty) {
+      return AppText.caption(
+        l10n.heatmapIntensityNone,
+        color: context.appPalette.textSecondary,
       );
     }
 
@@ -36,28 +167,43 @@ class ContributionHeatmap extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (showMonthLabels) ...[
-            _MonthLabels(
-              data: data,
-              cellSize: cellSize,
-              cellGap: cellGap,
-            ),
-            const VGap.sm(),
-          ],
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _DayLabels(cellSize: cellSize, cellGap: cellGap),
+              _DayLabels(
+                cellSize: widget.cellSize,
+                cellGap: widget.cellGap,
+                height: _gridHeight,
+                l10n: l10n,
+              ),
               const HGap.sm(),
               Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: _InteractiveHeatmapPaint(
-                    data: data,
-                    cellSize: cellSize,
-                    cellGap: cellGap,
-                    intensityLabel: intensityLabel,
-                  ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final viewportWidth = constraints.maxWidth;
+                    if (_viewportWidth != viewportWidth) {
+                      _viewportWidth = viewportWidth;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _scrollToTrailingEdge(viewportWidth);
+                      });
+                    }
+
+                    final gridContent = _buildGridContent();
+
+                    if (_gridWidth <= viewportWidth) {
+                      return Align(
+                        alignment: Alignment.centerRight,
+                        child: gridContent,
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      controller: _scrollController,
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.hardEdge,
+                      child: gridContent,
+                    );
+                  },
                 ),
               ),
             ],
@@ -76,149 +222,184 @@ class ContributionHeatmap extends StatelessWidget {
 class _MonthLabels extends StatelessWidget {
   const _MonthLabels({
     required this.data,
-    required this.cellSize,
-    required this.cellGap,
+    required this.cellStride,
+    required this.gridWidth,
+    required this.l10n,
   });
 
   final HeatmapData data;
-  final double cellSize;
-  final double cellGap;
+  final double cellStride;
+  final double gridWidth;
+  final AppLocalizations l10n;
+
+  static const _minLabelSpacing = 28.0;
+  static const _labelHeight = 18.0;
 
   @override
   Widget build(BuildContext context) {
-    final labels = <Widget>[];
+    final markers = <Widget>[];
     var lastMonth = -1;
-    const leftPadding = 20.0;
+    var lastLabelEnd = -_minLabelSpacing;
 
     for (var col = 0; col < data.weeks; col++) {
       final date = data.startDate.add(Duration(days: col * 7));
-      if (date.month != lastMonth) {
-        lastMonth = date.month;
-        labels.add(
-          SizedBox(
-            width: cellSize + cellGap,
-            child: AppText.caption(
-              DateFormatters.shortMonthNames[date.month - 1],
-              color: AppColors.textSecondary,
-            ),
+      if (date.year < data.endDate.year) continue;
+      if (date.month == lastMonth) continue;
+
+      lastMonth = date.month;
+      final left = col * cellStride;
+      if (left < lastLabelEnd + 4) continue;
+
+      markers.add(
+        Positioned(
+          left: left,
+          top: 0,
+          child: AppText.caption(
+            DateFormatters.shortMonthNames(l10n)[date.month - 1],
+            color: context.appPalette.textSecondary,
           ),
-        );
-      } else {
-        labels.add(SizedBox(width: cellSize + cellGap));
-      }
+        ),
+      );
+      lastLabelEnd = left + _minLabelSpacing;
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(left: leftPadding),
-      child: Row(children: labels),
+    return SizedBox(
+      height: _labelHeight,
+      width: gridWidth,
+      child: Stack(
+        clipBehavior: Clip.hardEdge,
+        children: markers,
+      ),
     );
   }
 }
 
 class _DayLabels extends StatelessWidget {
-  const _DayLabels({required this.cellSize, required this.cellGap});
+  const _DayLabels({
+    required this.cellSize,
+    required this.cellGap,
+    required this.height,
+    required this.l10n,
+  });
 
   final double cellSize;
   final double cellGap;
+  final double height;
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(7, (index) {
-        if (index.isOdd) {
-          return SizedBox(height: cellSize + cellGap);
-        }
-        return SizedBox(
-          height: cellSize + cellGap,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: AppText.caption(
-              DateFormatters.heatmapDayLabels[index],
-              color: AppColors.textSecondary,
+    return SizedBox(
+      height: height,
+      child: Column(
+        children: List.generate(HeatmapCalculator.daysPerWeek, (row) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: row < HeatmapCalculator.daysPerWeek - 1 ? cellGap : 0,
             ),
-          ),
-        );
-      }),
+            child: SizedBox(
+              height: cellSize,
+              child: row.isOdd
+                  ? const SizedBox.shrink()
+                  : Align(
+                      alignment: Alignment.centerLeft,
+                      child: AppText.caption(
+                        DateFormatters.heatmapDayLabels(l10n)[row],
+                        color: context.appPalette.textSecondary,
+                      ),
+                    ),
+            ),
+          );
+        }),
+      ),
     );
   }
 }
 
-class _InteractiveHeatmapPaint extends StatefulWidget {
-  const _InteractiveHeatmapPaint({
+class _HeatmapGrid extends StatefulWidget {
+  const _HeatmapGrid({
     required this.data,
     required this.cellSize,
     required this.cellGap,
+    required this.gridWidth,
+    required this.gridHeight,
+    required this.l10n,
     this.intensityLabel,
   });
 
   final HeatmapData data;
   final double cellSize;
   final double cellGap;
+  final double gridWidth;
+  final double gridHeight;
+  final AppLocalizations l10n;
   final String Function(int level)? intensityLabel;
 
   @override
-  State<_InteractiveHeatmapPaint> createState() =>
-      _InteractiveHeatmapPaintState();
+  State<_HeatmapGrid> createState() => _HeatmapGridState();
 }
 
-class _InteractiveHeatmapPaintState extends State<_InteractiveHeatmapPaint> {
+class _HeatmapGridState extends State<_HeatmapGrid> {
   String? _selectedTooltip;
 
-  ({int row, int col})? _cellAt(Offset position) {
-    final col = (position.dx / (widget.cellSize + widget.cellGap)).floor();
-    final row = (position.dy / (widget.cellSize + widget.cellGap)).floor();
-    if (row < 0 ||
-        col < 0 ||
-        row >= HeatmapCalculator.daysPerWeek ||
-        col >= widget.data.weeks) {
-      return null;
-    }
-    return (row: row, col: col);
-  }
-
-  String _tooltipForCell(int row, int col) {
+  void _onCellTap(int row, int col) {
     final date = widget.data.startDate.add(Duration(days: col * 7 + row));
     final level = widget.data.intensityAt(row, col);
-    return DateFormatters.heatmapTooltip(
-      date,
-      level: level,
-      intensityLabel: widget.intensityLabel,
-    );
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    final cell = _cellAt(details.localPosition);
-    if (cell == null) return;
-    setState(() => _selectedTooltip = _tooltipForCell(cell.row, cell.col));
+    setState(() {
+      _selectedTooltip = DateFormatters.heatmapTooltip(
+        date,
+        level: level,
+        l10n: widget.l10n,
+        intensityLabel: widget.intensityLabel,
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final width =
-        widget.data.weeks * (widget.cellSize + widget.cellGap) - widget.cellGap;
-    final height = HeatmapCalculator.daysPerWeek *
-            (widget.cellSize + widget.cellGap) -
-        widget.cellGap;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
-          onTapUp: _handleTapUp,
-          child: CustomPaint(
-            size: Size(width, height),
-            painter: _HeatmapPainter(
-              data: widget.data,
-              cellSize: widget.cellSize,
-              cellGap: widget.cellGap,
-            ),
+        SizedBox(
+          width: widget.gridWidth,
+          height: widget.gridHeight,
+          child: Column(
+            children: List.generate(HeatmapCalculator.daysPerWeek, (row) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: row < HeatmapCalculator.daysPerWeek - 1
+                      ? widget.cellGap
+                      : 0,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(widget.data.weeks, (col) {
+                    final level =
+                        widget.data.intensityAt(row, col).clamp(0, 4);
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        right: col < widget.data.weeks - 1
+                            ? widget.cellGap
+                            : 0,
+                      ),
+                      child: _HeatmapCell(
+                        level: level,
+                        size: widget.cellSize,
+                        onTap: () => _onCellTap(row, col),
+                      ),
+                    );
+                  }),
+                ),
+              );
+            }),
           ),
         ),
         if (_selectedTooltip != null) ...[
           const VGap.sm(),
           AppText.caption(
             _selectedTooltip!,
-            color: AppColors.textSecondary,
+            color: context.appPalette.textSecondary,
           ),
         ],
       ],
@@ -226,39 +407,37 @@ class _InteractiveHeatmapPaintState extends State<_InteractiveHeatmapPaint> {
   }
 }
 
-class _HeatmapPainter extends CustomPainter {
-  _HeatmapPainter({
-    required this.data,
-    required this.cellSize,
-    required this.cellGap,
+class _HeatmapCell extends StatelessWidget {
+  const _HeatmapCell({
+    required this.level,
+    required this.size,
+    required this.onTap,
   });
 
-  final HeatmapData data;
-  final double cellSize;
-  final double cellGap;
+  final int level;
+  final double size;
+  final VoidCallback onTap;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint();
+  Widget build(BuildContext context) {
+    final palette = context.appPalette;
 
-    for (var row = 0; row < HeatmapCalculator.daysPerWeek; row++) {
-      for (var col = 0; col < data.weeks; col++) {
-        final level = data.intensityAt(row, col).clamp(0, 4);
-        paint.color = AppColors.heatmapLevels[level];
-
-        final x = col * (cellSize + cellGap);
-        final y = row * (cellSize + cellGap);
-        final rect = RRect.fromRectAndRadius(
-          Rect.fromLTWH(x, y, cellSize, cellSize),
-          const Radius.circular(2),
-        );
-        canvas.drawRRect(rect, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _HeatmapPainter oldDelegate) {
-    return oldDelegate.data != data;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: palette.heatmapLevels[level],
+          borderRadius: BorderRadius.circular(2),
+          border: Border.all(
+            color: palette.border.withValues(
+              alpha: level == 0 ? 0.6 : 0.35,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

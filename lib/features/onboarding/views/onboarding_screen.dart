@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
@@ -12,29 +13,29 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       body: FeaturePlaceholder(
-        title: 'Bienvenido',
-        subtitle:
-            'Rastrea tus hábitos con un heatmap inspirado en GitHub. '
-            'Construye consistencia, un día a la vez.',
+        title: l10n.onboardingWelcomeTitle,
+        subtitle: l10n.onboardingWelcomeSubtitle,
         icon: LucideIcons.sparkles,
         child: Column(
           children: [
-            const _OnboardingHighlight(
+            _OnboardingHighlight(
               icon: LucideIcons.grid,
-              title: 'Heatmap visual',
-              description: 'Visualiza tu progreso anual de un vistazo.',
+              title: l10n.onboardingHeatmapTitle,
+              description: l10n.onboardingHeatmapDescription,
             ),
             const VGap.lg(),
-            const _OnboardingHighlight(
+            _OnboardingHighlight(
               icon: LucideIcons.flame,
-              title: 'Rachas',
-              description: 'Mantén la motivación con streaks diarios.',
+              title: l10n.onboardingStreaksTitle,
+              description: l10n.onboardingStreaksDescription,
             ),
             const Spacer(),
             AppButton(
-              label: 'Comenzar',
+              label: l10n.onboardingStartButton,
               fullWidth: true,
               size: AppButtonSize.lg,
               onPressed: () => context.go(Routes.home),
