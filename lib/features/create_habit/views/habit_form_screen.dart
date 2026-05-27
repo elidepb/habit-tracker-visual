@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/create_habit/widgets/habit_color_picker.dart';
@@ -12,6 +13,7 @@ import 'package:habit_tracker_visual/features/habits/models/habit_frequency.dart
 import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/features/habits/validators/habit_validators.dart';
+import 'package:habit_tracker_visual/features/settings/utils/notification_sync_helper.dart';
 import 'package:habit_tracker_visual/shared/widgets/habit_not_found_screen.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -78,11 +80,13 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
   }
 
   Future<void> _save() async {
+    final l10n = context.l10n;
+
     if (!_formKey.currentState!.validate()) return;
 
     if (_reminderEnabled && _reminderTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona una hora para el recordatorio')),
+        SnackBar(content: Text(l10n.formReminderTimeRequired)),
       );
       return;
     }
@@ -113,6 +117,11 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
           clearReminderMinute: !_reminderEnabled,
         );
         await repository.save(updated);
+        await syncNotifications(
+          ref,
+          habits: repository.getAll(),
+          requestPermissionIfNeeded: _reminderEnabled,
+        );
       } else {
         final habit = HabitModel.create(
           name: name,
@@ -124,6 +133,11 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
           reminderMinute: _reminderEnabled ? _reminderTime?.minute : null,
         );
         await repository.save(habit);
+        await syncNotifications(
+          ref,
+          habits: repository.getAll(),
+          requestPermissionIfNeeded: _reminderEnabled,
+        );
       }
 
       if (!mounted) return;
@@ -135,6 +149,8 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     if (widget.isEditing) {
       final habit = ref.watch(habitByIdProvider(widget.habitId!));
       if (habit == null) {
@@ -147,7 +163,7 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: AppText.subtitle(
-          widget.isEditing ? 'Editar hábito' : 'Nuevo hábito',
+          widget.isEditing ? l10n.formEditTitle : l10n.formCreateTitle,
         ),
         leading: IconButton(
           icon: const Icon(LucideIcons.x),
@@ -161,12 +177,12 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
           children: [
             AppInput(
               controller: _nameController,
-              label: 'Nombre del hábito',
-              hint: 'Ej. Leer 30 minutos',
+              label: l10n.formNameLabel,
+              hint: l10n.formNameHint,
               prefixIcon: LucideIcons.pencil,
               maxLength: HabitValidators.maxNameLength,
               textInputAction: TextInputAction.done,
-              validator: HabitValidators.name,
+              validator: (value) => HabitValidators.name(value, l10n),
             ),
             const VGap.xl(),
             HabitColorPicker(
@@ -198,7 +214,9 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
             ),
             const VGap.xxxl(),
             AppButton(
-              label: widget.isEditing ? 'Guardar cambios' : 'Crear hábito',
+              label: widget.isEditing
+                  ? l10n.formSaveChanges
+                  : l10n.formCreateButton,
               fullWidth: true,
               icon: LucideIcons.check,
               isLoading: _isSaving,
@@ -206,7 +224,7 @@ class _HabitFormScreenState extends ConsumerState<HabitFormScreen> {
             ),
             const VGap.md(),
             AppButton(
-              label: 'Cancelar',
+              label: l10n.cancel,
               variant: AppButtonVariant.ghost,
               fullWidth: true,
               onPressed: _isSaving ? null : () => context.pop(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/habits/constants/habit_palette.dart';
@@ -16,10 +17,12 @@ class HabitColorPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.subtitle('Color', color: AppColors.textPrimary),
+        AppText.subtitle(l10n.formColorLabel, color: AppColors.textPrimary),
         const VGap.md(),
         Wrap(
           spacing: AppSpacing.md,

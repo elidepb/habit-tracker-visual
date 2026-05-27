@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
@@ -20,30 +21,31 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final habitsAsync = ref.watch(habitsStreamProvider);
     final stats = ref.watch(todayStatsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const AppText.subtitle('Hábitos'),
+        title: AppText.subtitle(l10n.homeTitle),
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.barChart2),
-            tooltip: 'Estadísticas',
+            tooltip: l10n.homeStatsTooltip,
             onPressed: () => context.go(Routes.statistics),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push(Routes.createHabit),
-        tooltip: 'Nuevo hábito',
+        tooltip: l10n.homeNewHabitTooltip,
         child: const Icon(LucideIcons.plus),
       ).fadeSlideIn(delay: const Duration(milliseconds: 200)),
       body: habitsAsync.when(
         loading: () => const HomeLoadingSkeleton(),
         error: (error, _) => Center(
           child: AppText.body(
-            'No se pudieron cargar los hábitos',
+            l10n.homeLoadError,
             color: AppColors.error,
           ),
         ),
@@ -84,7 +86,7 @@ class HomeScreen extends ConsumerWidget {
                         delay: const Duration(milliseconds: 100),
                       ),
                       const VGap.xl(),
-                      AppText.subtitle('Tus hábitos').fadeSlideIn(
+                      AppText.subtitle(l10n.homeYourHabits).fadeSlideIn(
                         delay: const Duration(milliseconds: 150),
                       ),
                       const VGap.md(),

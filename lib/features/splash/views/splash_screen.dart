@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_durations.dart';
@@ -46,6 +47,8 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       body: FadeTransition(
         opacity: _fadeAnimation,
@@ -63,12 +66,12 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ).fadeSlideIn(duration: AppDurations.slow),
               const VGap.xl(),
-              AppText.h1('Habit Tracker').fadeSlideIn(
+              AppText.h1(l10n.appName).fadeSlideIn(
                 delay: const Duration(milliseconds: 120),
               ),
               const VGap.sm(),
               AppText.subtitle(
-                'Visual',
+                l10n.appNameSuffix,
                 color: AppColors.textSecondary,
               ).fadeSlideIn(delay: const Duration(milliseconds: 200)),
             ],

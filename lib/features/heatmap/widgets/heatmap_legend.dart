@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:habit_tracker_visual/core/theme/app_colors.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
+import 'package:habit_tracker_visual/core/theme/app_palette.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/app_text.dart';
 
@@ -8,12 +9,15 @@ class HeatmapLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final palette = context.appPalette;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const AppText.caption('Menos'),
+        AppText.caption(l10n.heatmapLegendLess),
         const HGap.sm(),
-        ...AppColors.heatmapLevels.map(
+        ...palette.heatmapLevels.map(
           (color) => Padding(
             padding: const EdgeInsets.only(right: AppSpacing.xs),
             child: Container(
@@ -23,14 +27,14 @@ class HeatmapLegend extends StatelessWidget {
                 color: color,
                 borderRadius: BorderRadius.circular(2),
                 border: Border.all(
-                  color: AppColors.border.withValues(alpha: 0.5),
+                  color: palette.border.withValues(alpha: 0.5),
                 ),
               ),
             ),
           ),
         ),
         const HGap.sm(),
-        const AppText.caption('Más'),
+        AppText.caption(l10n.heatmapLegendMore),
       ],
     );
   }

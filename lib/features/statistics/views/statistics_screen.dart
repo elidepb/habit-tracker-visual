@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/statistics/providers/statistics_providers.dart';
@@ -15,11 +16,12 @@ class StatisticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final stats = ref.watch(globalStatisticsProvider);
 
     if (stats.totalHabits == 0) {
       return Scaffold(
-        appBar: AppBar(title: const AppText.subtitle('Estadísticas')),
+        appBar: AppBar(title: AppText.subtitle(l10n.statisticsTitle)),
         body: Center(
           child: Padding(
             padding: AppSpacing.screenPadding,
@@ -32,12 +34,12 @@ class StatisticsScreen extends ConsumerWidget {
                   color: AppColors.textSecondary.withValues(alpha: 0.5),
                 ).fadeSlideIn(),
                 const VGap.lg(),
-                AppText.subtitle('Sin datos aún').fadeSlideIn(
+                AppText.subtitle(l10n.statisticsEmptyTitle).fadeSlideIn(
                   delay: const Duration(milliseconds: 60),
                 ),
                 const VGap.sm(),
                 AppText.body(
-                  'Crea hábitos y registra checks para ver tus estadísticas globales.',
+                  l10n.statisticsEmptyBody,
                   color: AppColors.textSecondary,
                   textAlign: TextAlign.center,
                 ).fadeSlideIn(delay: const Duration(milliseconds: 120)),
@@ -49,7 +51,7 @@ class StatisticsScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const AppText.subtitle('Estadísticas')),
+      appBar: AppBar(title: AppText.subtitle(l10n.statisticsTitle)),
       body: ListView(
         padding: AppSpacing.screenPadding,
         children: [

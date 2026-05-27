@@ -9,6 +9,8 @@ abstract final class HiveBoxes {
 
 abstract final class SettingsKeys {
   static const String notificationsEnabled = 'notifications_enabled';
+  static const String themeMode = 'theme_mode';
+  static const String localeCode = 'locale_code';
 }
 
 abstract final class HiveStorage {

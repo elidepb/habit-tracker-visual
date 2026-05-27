@@ -1,45 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_durations.dart';
+import 'package:habit_tracker_visual/core/theme/app_palette.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/core/theme/app_typography.dart';
 
 abstract final class AppTheme {
-  static ThemeData get dark {
-    const colorScheme = ColorScheme.dark(
-      surface: AppColors.surface,
-      primary: AppColors.primary,
-      secondary: AppColors.secondary,
-      tertiary: AppColors.accent,
-      error: AppColors.error,
-      onSurface: AppColors.textPrimary,
-      onPrimary: Colors.white,
-      onSecondary: Colors.white,
-      onError: Colors.white,
-    );
+  static ThemeData get dark => _build(AppPalette.dark, Brightness.dark);
 
-    final textTheme = AppTypography.textTheme(AppColors.textPrimary);
+  static ThemeData get light => _build(AppPalette.light, Brightness.light);
+
+  static ThemeData _build(AppPalette palette, Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+
+    final colorScheme = isDark
+        ? const ColorScheme.dark(
+            surface: AppColors.surface,
+            primary: AppColors.primary,
+            secondary: AppColors.secondary,
+            tertiary: AppColors.accent,
+            error: AppColors.error,
+            onSurface: AppColors.textPrimary,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onError: Colors.white,
+          )
+        : ColorScheme.light(
+            surface: palette.surface,
+            primary: AppColors.primary,
+            secondary: AppColors.secondary,
+            tertiary: AppColors.accent,
+            error: AppColors.error,
+            onSurface: palette.textPrimary,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onError: Colors.white,
+          );
+
+    final textTheme = AppTypography.textTheme(
+      palette.textPrimary,
+      secondaryColor: palette.textSecondary,
+    );
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.background,
+      brightness: brightness,
+      scaffoldBackgroundColor: palette.background,
       colorScheme: colorScheme,
       textTheme: textTheme,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
+      extensions: [palette],
+      appBarTheme: AppBarTheme(
+        backgroundColor: palette.background,
+        foregroundColor: palette.textPrimary,
         elevation: 0,
         centerTitle: false,
       ),
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: palette.surface,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.card),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: palette.border),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -59,12 +82,12 @@ abstract final class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.textPrimary,
+          foregroundColor: palette.textPrimary,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.xl,
             vertical: AppSpacing.md,
           ),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: palette.border),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.main),
           ),
@@ -73,7 +96,7 @@ abstract final class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.textSecondary,
+          foregroundColor: palette.textSecondary,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
             vertical: AppSpacing.sm,
@@ -89,21 +112,21 @@ abstract final class AppTheme {
         foregroundColor: Colors.white,
         elevation: 2,
       ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.border,
+      dividerTheme: DividerThemeData(
+        color: palette.border,
         thickness: 1,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: palette.surface,
         contentPadding: AppSpacing.inputPadding,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: palette.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: palette.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.input),
@@ -117,37 +140,48 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppRadius.input),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        labelStyle: TextStyle(color: palette.textSecondary),
+        hintStyle: TextStyle(color: palette.textSecondary),
         errorStyle: const TextStyle(color: AppColors.error, fontSize: 12),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: palette.surface,
         indicatorColor: AppColors.primary.withValues(alpha: 0.15),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return TextStyle(
             fontSize: 12,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-            color: selected ? AppColors.primary : AppColors.textSecondary,
+            color: selected ? AppColors.primary : palette.textSecondary,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
-            color: selected ? AppColors.primary : AppColors.textSecondary,
+            color: selected ? AppColors.primary : palette.textSecondary,
             size: 22,
           );
         }),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: palette.surface,
         contentTextStyle: textTheme.bodyMedium,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.main),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: palette.border),
         ),
         behavior: SnackBarBehavior.floating,
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          foregroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.primary;
+            }
+            return palette.textSecondary;
+          }),
+          side: WidgetStateProperty.all(BorderSide(color: palette.border)),
+        ),
       ),
     );
   }

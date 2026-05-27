@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_radius.dart';
@@ -16,9 +17,11 @@ class HabitRankingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     if (rankings.isEmpty) {
-      return const AppText.caption(
-        'Crea hábitos para ver el ranking',
+      return AppText.caption(
+        l10n.habitRankingEmpty,
         color: AppColors.textSecondary,
       );
     }
@@ -26,10 +29,10 @@ class HabitRankingList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.subtitle('Ranking de hábitos'),
+        AppText.subtitle(l10n.habitRankingTitle),
         const VGap.xs(),
-        const AppText.caption(
-          'Ordenados por tasa de cumplimiento',
+        AppText.caption(
+          l10n.habitRankingSubtitle,
           color: AppColors.textSecondary,
         ),
         const VGap.md(),
@@ -45,7 +48,7 @@ class HabitRankingList extends StatelessWidget {
               child: Row(
                 children: [
                   SizedBox(
-                    width: 28,
+                    width: 24,
                     child: AppText.subtitle(
                       '${index + 1}',
                       color: AppColors.textSecondary,
@@ -63,26 +66,32 @@ class HabitRankingList extends StatelessWidget {
                       size: 18,
                     ),
                   ),
-                  const HGap.md(),
+                  const HGap.sm(),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        AppText.subtitle(ranking.name),
+                        AppText.subtitle(
+                          ranking.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         const VGap.xs(),
-                        Row(
+                        Wrap(
+                          spacing: AppSpacing.xs,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             AppText.caption(
-                              '${ranking.completionPercent}% cumplimiento',
+                              l10n.habitRankingCompletion(
+                                ranking.completionPercent,
+                              ),
                             ),
                             if (ranking.currentStreak > 0) ...[
-                              const AppText.caption(' · '),
                               const Icon(
                                 LucideIcons.flame,
                                 size: 12,
                                 color: AppColors.accent,
                               ),
-                              const HGap.xs(),
                               AppText.caption(
                                 '${ranking.currentStreak}',
                                 color: AppColors.accent,
@@ -93,12 +102,18 @@ class HabitRankingList extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _CompletionBadge(percent: ranking.completionPercent),
                   const HGap.sm(),
-                  Icon(
-                    LucideIcons.chevronRight,
-                    size: 16,
-                    color: AppColors.textSecondary.withValues(alpha: 0.6),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _CompletionBadge(percent: ranking.completionPercent),
+                      const HGap.xs(),
+                      Icon(
+                        LucideIcons.chevronRight,
+                        size: 16,
+                        color: AppColors.textSecondary.withValues(alpha: 0.6),
+                      ),
+                    ],
                   ),
                 ],
               ),

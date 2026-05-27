@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/habit_detail/models/habit_statistics.dart';
@@ -18,19 +19,21 @@ class HabitStatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.subtitle('Estadísticas'),
+        AppText.subtitle(l10n.habitStatsTitle),
         const VGap.md(),
         Row(
           children: [
             Expanded(
               child: StatMetricCard(
                 icon: LucideIcons.flame,
-                label: 'Mejor racha',
+                label: l10n.statBestStreak,
                 value: '${stats.bestStreak}',
-                suffix: 'días',
+                suffix: l10n.unitDays,
                 color: AppColors.accent,
               ),
             ),
@@ -38,9 +41,9 @@ class HabitStatsSection extends StatelessWidget {
             Expanded(
               child: StatMetricCard(
                 icon: LucideIcons.percent,
-                label: 'Cumplimiento',
+                label: l10n.statCompletion,
                 value: '${stats.completionPercent}',
-                suffix: '%',
+                suffix: l10n.unitPercent,
                 color: AppColors.secondary,
               ),
             ),
@@ -52,7 +55,7 @@ class HabitStatsSection extends StatelessWidget {
             Expanded(
               child: StatMetricCard(
                 icon: LucideIcons.calendarCheck,
-                label: 'Días activos',
+                label: l10n.statActiveDays,
                 value: '${stats.activeDays}',
                 color: accentColor,
               ),
@@ -61,9 +64,9 @@ class HabitStatsSection extends StatelessWidget {
             Expanded(
               child: StatMetricCard(
                 icon: LucideIcons.trendingUp,
-                label: 'Racha actual',
+                label: l10n.statCurrentStreak,
                 value: '${stats.currentStreak}',
-                suffix: 'días',
+                suffix: l10n.unitDays,
                 color: AppColors.success,
               ),
             ),

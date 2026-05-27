@@ -13,7 +13,10 @@ void main() {
       final data = HeatmapCalculator.fromHabit(habit);
 
       expect(data.isEmpty, isFalse);
-      expect(data.weeks, HeatmapCalculator.weeksCount);
+      expect(data.weeks, greaterThan(0));
+      expect(data.weeks, lessThanOrEqualTo(53));
+      expect(data.endDate.year, DateTime.now().year);
+      expect(data.endDate.month, DateTime.now().month);
       expect(data.totalActiveDays, greaterThan(0));
     });
 
@@ -43,12 +46,16 @@ void main() {
       expect(data.isEmpty, isTrue);
     });
 
-    test('intensityAt retorna 0 fuera de rango', () {
+    test('weekColumnFor ubica la columna del mes', () {
       final habit = HabitModel.create(name: 'Test');
       final data = HeatmapCalculator.fromHabit(habit);
+      final now = DateTime.now();
+      final monthStart = DateTime(now.year, now.month, 1);
 
-      expect(data.intensityAt(-1, 0), 0);
-      expect(data.intensityAt(0, 999), 0);
+      final col = HeatmapCalculator.weekColumnFor(data.startDate, monthStart);
+
+      expect(col, greaterThanOrEqualTo(0));
+      expect(col, lessThan(data.weeks));
     });
   });
 }

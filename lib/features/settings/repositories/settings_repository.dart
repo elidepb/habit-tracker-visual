@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:habit_tracker_visual/core/storage/hive_storage.dart';
 
@@ -9,5 +10,30 @@ class SettingsRepository {
 
   Future<void> setNotificationsEnabled(bool enabled) async {
     await _box.put(SettingsKeys.notificationsEnabled, enabled);
+  }
+
+  ThemeMode get themeMode {
+    final stored = _box.get(SettingsKeys.themeMode, defaultValue: 'system');
+    return switch (stored) {
+      'light' => ThemeMode.light,
+      'dark' => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
+  }
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    final value = switch (mode) {
+      ThemeMode.light => 'light',
+      ThemeMode.dark => 'dark',
+      ThemeMode.system => 'system',
+    };
+    await _box.put(SettingsKeys.themeMode, value);
+  }
+
+  String get localeCode =>
+      _box.get(SettingsKeys.localeCode, defaultValue: 'system') as String;
+
+  Future<void> setLocaleCode(String code) async {
+    await _box.put(SettingsKeys.localeCode, code);
   }
 }

@@ -1,13 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_model_extensions.dart';
 import 'package:habit_tracker_visual/features/habits/models/habit_frequency.dart';
-import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
+
+import '../../helpers/test_helpers.dart';
 
 void main() {
   group('HabitFrequency', () {
-    test('label retorna texto en español', () {
-      expect(HabitFrequency.daily.label, 'Diario');
-      expect(HabitFrequency.weekly.label, 'Semanal');
-      expect(HabitFrequency.custom.label, 'Personalizado');
+    test('localizedLabel retorna texto en español', () {
+      final l10n = testL10n();
+      expect(HabitFrequency.daily.localizedLabel(l10n), 'Diario');
+      expect(HabitFrequency.weekly.localizedLabel(l10n), 'Semanal');
+      expect(HabitFrequency.custom.localizedLabel(l10n), 'Personalizado');
     });
 
     test('fromIndex retorna frecuencia válida', () {

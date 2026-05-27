@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/router/routes.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
@@ -34,6 +35,7 @@ class HabitDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final habit = ref.watch(habitByIdProvider(habitId));
 
     if (habit == null) {
@@ -53,7 +55,7 @@ class HabitDetailScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(LucideIcons.pencil),
-            tooltip: 'Editar',
+            tooltip: l10n.habitDetailEditTooltip,
             onPressed: () => context.push(Routes.editHabitPath(habitId)),
           ),
         ],
@@ -67,7 +69,7 @@ class HabitDetailScreen extends ConsumerWidget {
             delay: const Duration(milliseconds: 60),
           ),
           const VGap.xl(),
-          AppText.subtitle('Actividad anual').fadeSlideIn(
+          AppText.subtitle(l10n.habitDetailAnnualActivity).fadeSlideIn(
             delay: const Duration(milliseconds: 100),
           ),
           const VGap.md(),
@@ -76,11 +78,11 @@ class HabitDetailScreen extends ConsumerWidget {
               data: heatmap,
               cellSize: 14,
               intensityLabel: (level) =>
-                  level > 0 ? 'Completado' : 'Sin completar',
+                  level > 0 ? l10n.heatmapDayCompleted : l10n.heatmapDayNotCompleted,
             ),
           ).fadeSlideIn(delay: const Duration(milliseconds: 120)),
           const VGap.xl(),
-          AppText.subtitle('Historial').fadeSlideIn(
+          AppText.subtitle(l10n.habitDetailHistory).fadeSlideIn(
             delay: const Duration(milliseconds: 140),
           ),
           const VGap.md(),
@@ -104,12 +106,13 @@ class HabitDetailScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const AppText.subtitle('Recordatorio'),
+                        AppText.subtitle(l10n.habitDetailReminder),
                         const VGap.xs(),
                         AppText.caption(
                           DateFormatters.reminder(
                             habit.reminderHour,
                             habit.reminderMinute,
+                            l10n,
                           ),
                         ),
                       ],
@@ -121,7 +124,7 @@ class HabitDetailScreen extends ConsumerWidget {
           ],
           const VGap.xxxl(),
           AppButton(
-            label: 'Editar hábito',
+            label: l10n.habitDetailEditButton,
             variant: AppButtonVariant.secondary,
             icon: LucideIcons.pencil,
             fullWidth: true,
@@ -129,7 +132,7 @@ class HabitDetailScreen extends ConsumerWidget {
           ).fadeSlideIn(delay: const Duration(milliseconds: 200)),
           const VGap.md(),
           AppButton(
-            label: 'Eliminar hábito',
+            label: l10n.habitDetailDeleteButton,
             variant: AppButtonVariant.danger,
             icon: LucideIcons.trash2,
             fullWidth: true,

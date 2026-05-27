@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:habit_tracker_visual/core/theme/app_theme.dart';
 import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/habits/providers/habit_providers.dart';
 import 'package:habit_tracker_visual/features/statistics/views/statistics_screen.dart';
@@ -15,10 +13,7 @@ void main() {
         overrides: [
           habitsProvider.overrideWith((ref) => []),
         ],
-        child: MaterialApp(
-          theme: AppTheme.dark,
-          home: const StatisticsScreen(),
-        ),
+        child: wrapWithProviders(const StatisticsScreen()),
       ),
     );
     await pumpAnimations(tester);
@@ -35,10 +30,7 @@ void main() {
         overrides: [
           habitsProvider.overrideWith((ref) => [habit]),
         ],
-        child: MaterialApp(
-          theme: AppTheme.dark,
-          home: const StatisticsScreen(),
-        ),
+        child: wrapWithProviders(const StatisticsScreen()),
       ),
     );
     await pumpAnimations(tester);

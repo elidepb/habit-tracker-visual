@@ -2,7 +2,6 @@ import 'package:habit_tracker_visual/features/habits/models/habit_model.dart';
 import 'package:habit_tracker_visual/features/heatmap/models/heatmap_data.dart';
 
 abstract final class HeatmapCalculator {
-  static const int weeksCount = 53;
   static const int daysPerWeek = 7;
 
   static HeatmapData fromHabits(List<HabitModel> habits) {
@@ -40,21 +39,22 @@ abstract final class HeatmapCalculator {
     required int totalHabits,
     required int Function(DateTime date) intensityForDate,
   }) {
-    final end = DateTime.now();
-    final endDate = DateTime(end.year, end.month, end.day);
-    final alignedStart = _alignToSunday(
-      endDate.subtract(Duration(days: (weeksCount - 1) * daysPerWeek)),
-    );
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yearStart = DateTime(now.year, 1, 1);
+
+    final alignedStart = _alignToSunday(yearStart);
+    final weeks = weekColumnFor(alignedStart, today) + 1;
     final grid = List.generate(
       daysPerWeek,
-      (_) => List<int>.filled(weeksCount, 0),
+      (_) => List<int>.filled(weeks, 0),
     );
 
     var cursor = alignedStart;
-    while (!cursor.isAfter(endDate)) {
+    while (!cursor.isAfter(today)) {
       final row = cursor.weekday % 7;
       final col = cursor.difference(alignedStart).inDays ~/ daysPerWeek;
-      if (col >= 0 && col < weeksCount) {
+      if (col >= 0 && col < weeks && !cursor.isBefore(yearStart)) {
         grid[row][col] = intensityForDate(cursor);
       }
       cursor = cursor.add(const Duration(days: 1));
@@ -69,12 +69,22 @@ abstract final class HeatmapCalculator {
 
     return HeatmapData(
       grid: grid,
-      weeks: weeksCount,
+      weeks: weeks,
       startDate: alignedStart,
-      endDate: endDate,
+      endDate: today,
       totalHabits: totalHabits,
       totalActiveDays: activeDays,
     );
+  }
+
+  static int weekColumnFor(DateTime gridStart, DateTime date) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    final normalizedStart = DateTime(
+      gridStart.year,
+      gridStart.month,
+      gridStart.day,
+    );
+    return normalizedDate.difference(normalizedStart).inDays ~/ daysPerWeek;
   }
 
   static DateTime _alignToSunday(DateTime date) {

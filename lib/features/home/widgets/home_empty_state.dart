@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habit_tracker_visual/core/animations/app_animate_extensions.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
@@ -12,6 +13,8 @@ class HomeEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxxl),
@@ -23,18 +26,18 @@ class HomeEmptyState extends StatelessWidget {
               color: AppColors.textSecondary.withValues(alpha: 0.5),
             ).fadeSlideIn(),
             const VGap.lg(),
-            AppText.subtitle('Sin hábitos aún').fadeSlideIn(
+            AppText.subtitle(l10n.homeEmptyTitle).fadeSlideIn(
               delay: Duration(milliseconds: 60),
             ),
             const VGap.sm(),
             AppText.body(
-              'Crea tu primer hábito para empezar a trackear tu progreso.',
+              l10n.homeEmptyBody,
               color: AppColors.textSecondary,
               textAlign: TextAlign.center,
             ).fadeSlideIn(delay: Duration(milliseconds: 120)),
             const VGap.xl(),
             AppButton(
-              label: 'Crear hábito',
+              label: l10n.homeEmptyCreateButton,
               icon: LucideIcons.plus,
               onPressed: onCreateTap,
             ).fadeSlideIn(delay: Duration(milliseconds: 180)),

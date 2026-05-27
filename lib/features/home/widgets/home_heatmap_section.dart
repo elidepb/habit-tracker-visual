@@ -1,42 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_spacing.dart';
 import 'package:habit_tracker_visual/features/heatmap/providers/heatmap_providers.dart';
 import 'package:habit_tracker_visual/features/heatmap/widgets/contribution_heatmap.dart';
+import 'package:habit_tracker_visual/l10n/app_localizations.dart';
 import 'package:habit_tracker_visual/shared/widgets/ui/ui.dart';
 
 class HomeHeatmapSection extends ConsumerWidget {
   const HomeHeatmapSection({super.key});
 
-  String _intensityLabel(int level, int totalHabits) {
-    if (level == 0) return 'Sin actividad';
-    if (totalHabits <= 1) return 'Completado';
+  String _intensityLabel(int level, int totalHabits, AppLocalizations l10n) {
+    if (level == 0) return l10n.heatmapIntensityNone;
+    if (totalHabits <= 1) return l10n.heatmapIntensityCompleted;
     return switch (level) {
-      1 => 'Baja actividad',
-      2 => 'Actividad media',
-      3 => 'Alta actividad',
-      4 => 'Todos completados',
-      _ => 'Actividad',
+      1 => l10n.heatmapIntensityLow,
+      2 => l10n.heatmapIntensityMedium,
+      3 => l10n.heatmapIntensityHigh,
+      4 => l10n.heatmapIntensityAll,
+      _ => l10n.heatmapIntensityDefault,
     };
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final heatmap = ref.watch(globalHeatmapProvider);
 
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AppText.subtitle('Actividad anual'),
+          AppText.subtitle(l10n.heatmapAnnualTitle),
           const VGap.xs(),
           AppText.caption(
-            '${heatmap.totalActiveDays} días activos en el último año',
+            l10n.heatmapActiveDaysThisYear(heatmap.totalActiveDays),
           ),
           const VGap.lg(),
           ContributionHeatmap(
             data: heatmap,
-            intensityLabel: (level) => _intensityLabel(level, heatmap.totalHabits),
+            intensityLabel: (level) =>
+                _intensityLabel(level, heatmap.totalHabits, l10n),
           ),
         ],
       ),

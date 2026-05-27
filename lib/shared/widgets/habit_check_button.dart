@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:habit_tracker_visual/core/l10n/l10n_extensions.dart';
 import 'package:habit_tracker_visual/core/theme/app_colors.dart';
 import 'package:habit_tracker_visual/core/theme/app_durations.dart';
 import 'package:habit_tracker_visual/features/habits/models/daily_check_result.dart';
@@ -123,9 +124,10 @@ class _HabitCheckButtonState extends ConsumerState<HabitCheckButton>
 void showDailyCheckFeedback(BuildContext context, DailyCheckResult result) {
   if (!result.justCompleted) return;
 
+  final l10n = context.l10n;
   final message = result.streak > 1
-      ? '¡Completado! Racha de ${result.streak} días'
-      : '¡Hábito completado hoy!';
+      ? l10n.checkFeedbackStreak(result.streak)
+      : l10n.checkFeedbackCompleted;
 
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
