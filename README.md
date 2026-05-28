@@ -88,7 +88,3 @@ Para generar un APK de debug:
 ```bash
 flutter build apk --debug
 ```
-
-## Plan de desarrollo
-
-Ver [plan.md](plan.md) para el roadmap completo (PR-01 a PR-14).
